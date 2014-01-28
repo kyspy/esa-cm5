@@ -29,11 +29,13 @@
      <h3>All entries in the database:</h3>
         {% for track in tracks %}
         <p>
-            ID: {{track.id}} Timestamp: {{track.timestamp}} Date: {{track.date}}  Station Start: {{track.station_start}} Station End: {{track.station_end}} Quantity: {{track.quantity}} Area ID: {{track.area_id}}
+            ID: {{track.id}} Timestamp: {{track.timestamp}} Date: {{track.date}}  Station Start: {{track.station_start}} Station End: {{track.station_end}} Quantity: {{track.quantity}}
+            {% for area in areas %}
+                {% if area.id is sameas track.area_id %}
+                    Area: {{area.area}} Location: {{area.location}}
+                {% endif %}
+            {% endfor %}
         </p>
-        {% endfor %}
-        {% for area in areas %}
-            Area: {{area.area}} Location: {{area.location}}
         {% endfor %}
     </div>
     </div> <!-- /container -->

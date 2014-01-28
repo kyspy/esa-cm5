@@ -5,7 +5,7 @@ class Area(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     area = db.Column(db.String(3), unique=True)
     location = db.Column(db.String(3))
-    tracks = db.relationship('Track', backref=db.backref('area', lazy='dynamic'))
+    tracks = db.relationship('Track', backref='area', lazy='dynamic')
 
     def __init__(self, area, location):
         self.area = area
@@ -27,13 +27,12 @@ class Track(db.Model):
     quantity = db.Column(db.Float)
     area_id = db.Column(db.Integer, db.ForeignKey('area.id'))
 
-    def __init__(self, timestamp, date, station_start, station_end, quantity, area):
+    def __init__(self, timestamp, date, station_start, station_end, quantity):
         self.timestamp = timestamp
         self.date = date
         self.station_start = station_start
         self.station_end = station_end
         self.quantity = quantity
-        self.area = area
 
     def get_id(self):
         return unicode(self.id)
