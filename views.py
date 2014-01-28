@@ -14,10 +14,11 @@ def index():
             date = form.date.data,
             station_start = form.station_start.data,
             station_end = form.station_end.data,
-            quantity = form.quantity.data)
+            quantity = form.quantity.data,
+            area = areaed)
         db.session.add(tracked)
         db.session.commit()
-        db.session.add(areaed)
+        db.session.merge(areaed)
         db.session.commit()
         return redirect(url_for('index'))
     tracks = Track.query.order_by(Track.station_start)
