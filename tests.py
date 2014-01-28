@@ -19,10 +19,10 @@ class TestCase(unittest.TestCase):
         db.drop_all()
 
     def test_tracking(self):
-        t = Tracking(station_start = 12.3, station_end = 12.4, quantity = 15)
+        t = Track(station_start = 12.3, station_end = 12.4, quantity = 15)
         db.session.add(t)
         db.session.commit()
-        t = Tracking(station_start = 15.8, station_end = 16, quantity = 2)
+        t = Track(station_start = 15.8, station_end = 16, quantity = 2)
         db.session.add(t)
         db.session.commit()
 

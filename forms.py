@@ -1,5 +1,5 @@
 from flask.ext.wtf import Form
-from wtforms import FloatField, DateField
+from wtforms import FloatField, DateField, StringField
 from wtforms.validators import Required
 
 class TrackingForm(Form):
@@ -7,3 +7,6 @@ class TrackingForm(Form):
     station_start = FloatField('Starting Station:', validators = [Required()])
     station_end = FloatField('Ending Station:', validators = [Required()])
     quantity = FloatField('Quantity:', validators = [Required()])
+    area = StringField('Area:', validators = [Required()])
+    location = StringField('Location:', validators = [Required()])
+

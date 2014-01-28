@@ -1,6 +1,7 @@
 from cm5_app import db
 
 class Track(db.Model):
+    __tablename__ = 'track'
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime)
     date = db.Column(db.Date)
@@ -20,9 +21,11 @@ class Track(db.Model):
         return '<Tracking %r>' % self.date
 
 class Area(db.Model):
+    __tablename__ = 'area'
     id = db.Column(db.Integer, primary_key = True)
     area = db.Column(db.String(3))
     location = db.Column(db.String(3))
+    tracked_items = db.relationship("Track", backref="area")
 
     def __init__(self, area, location):
         self.area = area

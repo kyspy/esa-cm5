@@ -10,6 +10,7 @@
 <div class="container">
 <header>
     <h1>ESA-CM App</h1>
+    <h2>CM005 Waterproofing Tracking</h2>
 </header>
     <div>
     <h3>Add an entry:</h3>
@@ -19,6 +20,8 @@
     <p> {{ form.station_start.label }} {{ form.station_start(size=20) }} </p>
     <p> {{ form.station_end.label }} {{ form.station_end(size=20) }} </p>
     <p> {{ form.quantity.label }} {{ form.quantity(size=20) }} </p>
+    <p> {{ form.area.label }} {{ form.area(size=4) }} </p>
+    <p> {{ form.location.label }} {{ form.location(size=4) }} </p>
     <p> <input type="submit" value="Submit"> </p>
     </form>
     </div>
@@ -26,7 +29,7 @@
      <h3>All entries in the database:</h3>
         {% for track in tracks %}
         <p>
-            {{track.quantity}} for station {{track.station_start}} to station {{track.station_end}} on {{track.date}}
+            ID: {{track.id}} Timestamp: {{track.timestamp}} Date: {{track.date}}  Station Start: {{track.station_start}} Station End: {{track.station_end}} Quantity: {{track.quantity}}
         </p>
         {% endfor %}
     </div>
