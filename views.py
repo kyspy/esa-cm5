@@ -21,5 +21,5 @@ def index():
         db.session.commit()
         return redirect(url_for('index'))
     tracks = Track.query.order_by(Track.station_start)
-    areas = Area.query.filter_by(id='Track.area_id')
-    return render_template('index.html', form=form, tracks=tracks, areas = areas)
+    areas = Area.query.join(Track).filter(Track.area_id)
+    return render_template('index.html', form=form, tracks=tracks, areas=areas)
