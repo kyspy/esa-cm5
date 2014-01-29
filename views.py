@@ -13,7 +13,10 @@ def index():
             date = form.date.data,
             station_start = form.station_start.data,
             station_end = form.station_end.data,
-            quantity = form.quantity.data)
+            quantity = form.quantity.data,
+            laborer = form.laborer.data,
+            foreman = form.foreman.data,
+            supervisor = form.supervisior.data)
         a = Area.query.filter_by(area = form.area.data).first()
         if a == None:
             a2 = Area(area = form.area.data, location = form.location.data)
