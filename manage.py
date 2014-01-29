@@ -17,8 +17,8 @@ manager.add_command('db', MigrateCommand)
 class Area(db.Model):
     __tablename__ = 'area'
     id = db.Column(db.Integer, primary_key = True)
-    area = db.Column(db.String(3), unique=True)
-    location = db.Column(db.String(3))
+    area = db.Column(db.String(20), unique=True)
+    location = db.Column(db.String(20))
     tracks = db.relationship('Track', backref='area', lazy='dynamic')
 
     def __init__(self, area, location):
@@ -47,14 +47,11 @@ class Shift(db.Model):
     def get_id(self):
         return unicode(self.id)
 
-    def __repr__(self):
-        return '<Shift %r>' % self.shift
-
 class Material(db.Model):
     __tablename__ = 'material'
     id = db.Column(db.Integer, primary_key = True)
-    material = db.Column(db.String(8), unique=True)
-    unit = db.Column(db.String(8))
+    material = db.Column(db.String(20), unique=True)
+    unit = db.Column(db.String(20))
     tracks = db.relationship('Track', backref='material', lazy='dynamic')
 
     def __init__(self, material, unit):
@@ -63,9 +60,6 @@ class Material(db.Model):
 
     def get_id(self):
         return unicode(self.id)
-
-    def __repr__(self):
-        return '<Material %r>' % self.material
 
 class Track(db.Model):
     __tablename__ = 'track'
@@ -94,10 +88,6 @@ class Track(db.Model):
 
     def get_id(self):
         return unicode(self.id)
-
-    def __repr__(self):
-        return '<Tracking %r>' % self.date
-
 
 if __name__ == '__main__':
     manager.run()
