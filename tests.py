@@ -21,10 +21,10 @@ class TestCase(unittest.TestCase):
         db.drop_all()
 
     def test_track(self):
-        t = Track(timestamp = datetime.utcnow(), date = datetime(1979, 02, 01), station_start = 12.3, station_end = 12.4, quantity = 15, area_id = 1)
+        t = Track(timestamp = datetime.utcnow(), date = datetime(1979, 02, 01), station_start = 12.3, station_end = 12.4, quantity = 15)
         db.session.add(t)
         db.session.commit()
-        t = Track(timestamp = datetime.utcnow(), date = datetime(1982, 12, 30), station_start = 15.8, station_end = 16, quantity = 2, area_id = 2)
+        t = Track(timestamp = datetime.utcnow(), date = datetime(1982, 12, 30), station_start = 15.8, station_end = 16, quantity = 2)
         db.session.add(t)
         db.session.commit()
 
