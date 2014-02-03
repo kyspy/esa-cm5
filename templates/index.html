@@ -16,7 +16,7 @@
   </head>
 
   <body>
-
+    {% import 'macro.html' as macro %}
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -45,22 +45,22 @@
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
           <h1 class="page-header">Waterproofing</h1>
           <div class="row placeholders">
-            <form method="POST" action="/">
+            <form method="POST" action="/" class="form-inline">
             {{ form.hidden_tag() }}
-            {{ form.date.label }} {{ form.date(size=20) }} 
-            {{ form.station_start.label }} {{ form.station_start(size=20) }} 
-            {{ form.station_end.label }} {{ form.station_end(size=20) }} 
-            {{ form.quantity.label }} {{ form.quantity(size=20) }} 
-            {{ form.area.label }} {{ form.area(size=20) }}
-            {{ form.location.label }} {{ form.location(size=20) }} 
-            {{ form.shift.label }} {{ form.shift(size=20) }} 
-            {{ form.start.label }} {{ form.start(size=20) }} 
-            {{ form.end.label }} {{ form.end(size=20) }} 
-            {{ form.material.label }} {{ form.material(size=20) }} 
-            {{ form.unit.label }} {{ form.unit(size=20) }} 
-            {{ form.laborer.label }} {{ form.laborer(size=20) }} 
-            {{ form.foreman.label }} {{ form.foreman(size=20) }} 
-            {{ form.supervisor.label }} {{ form.supervisor(size=20) }} 
+            {% call macro.form_field(form.date) %} {% endcall %}
+            {% call macro.form_field(form.station_start) %} {% endcall %}
+            {% call macro.form_field(form.station_end) %} {% endcall %}
+            {% call macro.form_field(form.quantity) %} {% endcall %}
+            {% call macro.form_field(form.area) %} {% endcall %}
+            {% call macro.form_field(form.location) %} {% endcall %}
+            {% call macro.form_field(form.shift) %} {% endcall %}
+            {% call macro.form_field(form.start) %} {% endcall %}
+            {% call macro.form_field(form.end) %} {% endcall %}
+            {% call macro.form_field(form.material) %} {% endcall %}
+            {% call macro.form_field(form.unit) %} {% endcall %}
+            {% call macro.form_field(form.laborer) %} {% endcall %}
+            {% call macro.form_field(form.foreman) %} {% endcall %}
+            {% call macro.form_field(form.supervisor) %} {% endcall %}
             <p> <input type="submit" value="Submit"> </p>
             </form>
           </div>
