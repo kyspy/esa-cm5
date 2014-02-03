@@ -1,26 +1,5 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>ESA-CM App</title>
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-      <ul class=flashes>
-      {% for message in messages %}
-         <li>{{ message }}</li>
-      {% endfor %}
-      </ul>
-      {% endif %}
-      {% endwith %}
-    <link href="../static/css/bootstrap_signin.css" rel="stylesheet">
-    <link href="../static/css/bootstrap.css" rel="stylesheet">
-    <link href="../static/css/bootstrap_navbar.css" rel="stylesheet">
-  </head>
-  <body>
-<div class="container">
-<header>
-    <h1>ESA-CM App</h1>
-    <h2>CM005 Waterproofing Tracking</h2>
-</header>
+{% extends "layout.html" %}
+{% block content %}
     <div>
     <h3>Add an entry:</h3>
     <form method="POST" action="/">
@@ -42,30 +21,4 @@
     <p> <input type="submit" value="Submit"> </p>
     </form>
     </div>
-    <div>
-    <h3>All entries in the database:</h3>
-            {% for track in tracks %}
-            <p>
-            ID: {{track.id}} Timestamp: {{track.timestamp}} Date: {{track.date}}  Station Start: {{track.station_start}}
-            Station End: {{track.station_end}} Quantity: {{track.quantity}} Laborers: {{track.laborer}} Foremen: {{track.foremen}} Super: {{track.supervisor}}
-            {% for area in areas %}
-                {% if area.id is sameas track.area_id %}
-                    Area: {{area.area}} Location: {{area.location}}
-                {% endif %}
-            {% endfor %}
-            {% for shift in shifts %}
-                {% if shift.id is sameas track.shift_id %}
-                    Shift: {{shift.shift}} Shift Start: {{shift.start}} Shift End: {{shift.end}}
-                {% endif %}
-            {% endfor %}
-            {% for material in materials %}
-                {% if material.id is sameas track.material_id %}
-                    Material: {{material.material}} Unit: {{material.unit}}
-                {% endif %}
-            {% endfor %}
-            </p>
-            {% endfor %}
-    </div>
-    </div> <!-- /container -->
-  </body>
-</html>
+{% endblock content %}

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ESA-CM App</title>
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      <ul class=flashes>
+      {% for message in messages %}
+         <li>{{ message }}</li>
+      {% endfor %}
+      </ul>
+      {% endif %}
+      {% endwith %}
+    <link href="../static/css/bootstrap_signin.css" rel="stylesheet">
+    <link href="../static/css/bootstrap.css" rel="stylesheet">
+    <link href="../static/css/bootstrap_navbar.css" rel="stylesheet">
+  </head>
+  <body>
+<div class="container">
+    <header>
+    <h1>ESA-CM App</h1>
+    <h2>CM005 Waterproofing Tracking</h2>
+    </header>
+    {% block content %}{% endblock %}
+    </div> <!-- /container -->
+  </body>
+</html>

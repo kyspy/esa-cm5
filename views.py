@@ -12,7 +12,6 @@ def flash_errors(form):
                     error
             ))
 
-
 @app.route('/', methods=('GET', 'POST'))
 @app.route('/index', methods=('GET', 'POST'))
 def index():
@@ -59,12 +58,16 @@ def index():
         db.session.add(t)
         db.session.commit()
         flash("The entry has been submitted")
-        return redirect(url_for('index'))
+        return redirect(url_for('success'))
     else:
         flash_errors(form)
+    return render_template('index.html', form=form)
 
+@app.route('/success', methods=('GET', 'POST'))
+def success():
+    flash("The entry has been submitted")
     tracks = Track.query.order_by(Track.id)
     areas = Area.query.order_by(Area.id)
     shifts = Shift.query.order_by(Shift.id)
     materials = Material.query.order_by(Material.id)
-    return render_template('index.html', form=form, tracks=tracks, areas=areas, shifts=shifts, materials=materials)
+    return render_template('success.html', tracks=tracks, areas=areas, shifts=shifts, materials=materials)
