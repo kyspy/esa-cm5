@@ -1,4 +1,7 @@
-{% extends "layout.html" %}
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "bootstrap/fixes.html" as fixes %}
+
 {% block content %}
     <h3>All entries in the database:</h3>
             {% for track in tracks %}
@@ -23,3 +26,8 @@
             </p>
             {% endfor %}
 {% endblock content %}
+
+{% block head %}
+{{super()}}
+{{fixes.ie8()}}
+{% endblock %}
