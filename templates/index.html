@@ -9,103 +9,25 @@
     <meta name="author" content="">
     <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
 
-    <title>ESA CM005 Tracking App</title>
+    <title>Tracking App Signin</title>
     <link rel="stylesheet" href="../static/css/bootstrap.css">
-    <link rel="stylesheet" href="../static/css/bootstrap_dashboard.css">
+    <link rel="stylesheet" href="../static/css/bootstrap_signin.css">
 
   </head>
 
   <body>
-    {% import 'macro.html' as macro %}
-    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="#">ESA CM005</a>
-        </div>
-        <div class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="#">Waterproofing</a></li>
-            <li><a href="#">Concrete</a></li>
-            <li><a href="#">Stuff</a></li>
-            <li><a href="#">More Stuff</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
 
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-          <ul class="nav nav-sidebar">
-            <li class="active"><a href="#">Track</a></li>
-            <li><a href="#">Reports</a></li>
-            <li><a href="#">Export</a></li>
-          </ul>
-        </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Waterproofing</h1>
-          <div class="row placeholders">
-            <form method="POST" action="/" class="form-inline">
-            {{ form.hidden_tag() }}
-            {% call macro.form_field(form.date) %} {% endcall %}
-            {% call macro.form_field(form.station_start) %} {% endcall %}
-            {% call macro.form_field(form.station_end) %} {% endcall %}
-            {% call macro.form_field(form.quantity) %} {% endcall %}
-            {% call macro.form_field(form.area) %} {% endcall %}
-            {% call macro.form_field(form.location) %} {% endcall %}
-            {% call macro.form_field(form.shift) %} {% endcall %}
-            {% call macro.form_field(form.start) %} {% endcall %}
-            {% call macro.form_field(form.end) %} {% endcall %}
-            {% call macro.form_field(form.material) %} {% endcall %}
-            {% call macro.form_field(form.unit) %} {% endcall %}
-            {% call macro.form_field(form.laborer) %} {% endcall %}
-            {% call macro.form_field(form.foreman) %} {% endcall %}
-            {% call macro.form_field(form.supervisor) %} {% endcall %}
-            <p> <input type="submit" value="Submit"> </p>
-            </form>
-          </div>
+    <div class="container">
 
-          <h2 class="sub-header">New items</h2>
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Date</th>
-                  <th>Station Start</th>
-                  <th>Station End</th>
-                  <th>Quantity</th>
-                  <th>Laborers</th>
-                  <th>Foremen</th>
-                  <th>Supers</th>
-                </tr>
-              </thead>
-              <tbody>
-               {% for track in tracks %}
-                <tr>
-                  <td>{{track.id}}</td>
-                  <td>{{track.date}} </td>
-                  <td>{{track.station_start}}</td>
-                  <td>{{track.station_end}}</td>
-                  <td>{{track.quantity}}</td>
-                  <td>{{track.laborer}}</td>
-                  <td>{{track.foreman}}</td>
-                  <td>{{track.supervisor}}</td>
-                </tr>
-                {% endfor %}
+      <form class="form-signin" role="form">
+        <h2 class="form-signin-heading">ESA CM005 Tracking</h2>
+        <h3 class="form-signin-heading">Please sign in</h3>
+        <input type="email" class="form-control" placeholder="Email address" required autofocus>
+        <input type="password" class="form-control" placeholder="Password" required>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      </form>
 
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
+    </div> <!-- /container -->
 
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-    <script src="../../dist/js/bootstrap.min.js"></script>
-    <script src="../../assets/js/docs.min.js"></script>
   </body>
 </html>

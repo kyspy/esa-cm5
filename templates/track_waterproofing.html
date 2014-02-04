@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+{% block content %}
+
+          <h3 class="page-header">Track: Waterproofing</h3>
+          <div >
+            <form method="POST" action="/" class="form-inline">
+            {{ form.hidden_tag() }}
+            {% call macro.form_field(form.date) %} {% endcall %}
+            {% call macro.form_field(form.quantity) %} {% endcall %}
+            <p>
+            {% call macro.form_field(form.station_start) %} {% endcall %}
+            {% call macro.form_field(form.station_end) %} {% endcall %}
+            </p>
+            <p>
+            {% call macro.form_field(form.area) %} {% endcall %}
+            {% call macro.form_field(form.location) %} {% endcall %}
+            </p>
+            <p>
+            {% call macro.form_field(form.shift) %} {% endcall %}
+            {% call macro.form_field(form.start) %} {% endcall %}
+            {% call macro.form_field(form.end) %} {% endcall %}
+            </p>
+            <p>
+            {% call macro.form_field(form.material) %} {% endcall %}
+            {% call macro.form_field(form.unit) %} {% endcall %}
+            </p>
+            <p>
+            {% call macro.form_field(form.laborer) %} {% endcall %}
+            {% call macro.form_field(form.foreman) %} {% endcall %}
+            {% call macro.form_field(form.supervisor) %} {% endcall %}
+            </p>
+            <p> <input type="submit" value="Submit" class="btn btn-primary"> </p>
+            </form>
+          </div>
+          <h4 class="sub-header"></h4>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Date</th>
+                  <th>Shift</th>
+                  <th>Shift Start</th>
+                  <th>Shift End</th>
+                  <th>Area</th>
+                  <th>Location</th>
+                  <th>Station Start</th>
+                  <th>Station End</th>
+                  <th>Quantity</th>
+                  <th>Material</th>
+                  <th>Unit</th>
+                  <th>Laborers</th>
+                  <th>Foremen</th>
+                  <th>Supers</th>
+                </tr>
+              </thead>
+              <tbody>
+               {% for track in tracks %}
+                <tr>
+                  <td>{{track.id}}</td>
+                  <td>{{track.date}} </td>
+                    {% for shift in shifts %}
+                    {% if shift.id is sameas track.shift_id %}
+                    <td>{{shift.shift}}</td>
+                    <td>{{shift.start}}</td>
+                    <td>{{shift.end}}</td>
+                    {% endif %}
+                    {% endfor %}
+                    {% for area in areas %}
+                    {% if area.id is sameas track.area_id %}
+                    <td>{{area.area}}</td>
+                    <td>{{area.location}}</td>
+                    {% endif %}
+                    {% endfor %}
+                  <td>{{track.station_start}}</td>
+                  <td>{{track.station_end}}</td>
+                  <td>{{track.quantity}}</td>
+                    {% for material in materials %}
+                    {% if material.id is sameas track.material_id %}
+                        <td>{{material.material}}</td>
+                        <td>{{material.unit}}</td>
+                    {% endif %}
+                    {% endfor %}
+                  <td>{{track.laborer}}</td>
+                  <td>{{track.foreman}}</td>
+                  <td>{{track.supervisor}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+{% endblock content %}
+

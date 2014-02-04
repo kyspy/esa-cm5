@@ -1,6 +1,7 @@
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
+from flask.ext.login import LoginManager
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -8,6 +9,9 @@ app.config.from_object('config')
 Bootstrap(app)
 
 db = SQLAlchemy(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 import views
 

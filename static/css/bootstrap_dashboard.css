@@ -54,6 +54,19 @@ body {
   color: #fff;
   background-color: #428bca;
 }
+.nav-sidebar > li > p {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+.nav-sidebar > .active > p {
+  color: #fff;
+  background-color: #428bca;
+}
+.nav > li > p {
+  position: relative;
+  display: block;
+  padding: 10px 15px;
+}
 
 
 /*
@@ -74,19 +87,3 @@ body {
 }
 
 
-/*
- * Placeholder dashboard ideas
- */
-
-.placeholders {
-  margin-bottom: 30px;
-}
-.placeholders h4 {
-  margin-bottom: 0;
-}
-.placeholder {
-  margin-bottom: 20px;
-}
-.placeholder img {
-  border-radius: 50%;
-}

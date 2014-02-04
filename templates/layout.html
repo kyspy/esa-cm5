@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
+
+    <title>ESA CM005 Tracking App</title>
+    <link rel="stylesheet" href="../static/css/bootstrap.css">
+    <link rel="stylesheet" href="../static/css/bootstrap_dashboard.css">
+
+  </head>
+
+  <body>
+    {% import 'macro.html' as macro %}
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">ESA CM005</a>
+        </div>
+         <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#">Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li class="active"><p>Track</p></li>
+            <li><a href="#">Waterproofing</a></li>
+            <li><a href="#">Rebar</a></li>
+            <li><a href="#">Concrete</a></li>
+            <li><a href="#">Waterproofing PVC</a></li>
+          </ul>
+          <ul class="nav nav-sidebar">
+            <li class="active"><p>Reports</p></li>
+            <li><a href="#">Waterproofing</a></li>
+            <li><a href="#">Rebar</a></li>
+            <li><a href="#">Concrete</a></li>
+            <li><a href="#">Waterproofing PVC</a></li>
+          </ul>
+          <ul class="nav nav-sidebar">
+            <li class="active"><p>Export</p></li>
+            <li><a href="#">Waterproofing</a></li>
+            <li><a href="#">Rebar</a></li>
+            <li><a href="#">Concrete</a></li>
+            <li><a href="#">Waterproofing PVC</a></li>
+          </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+
+        {% block content %} {% endblock content %}
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="../../dist/js/bootstrap.min.js"></script>
+    <script src="../../assets/js/docs.min.js"></script>
+  </body>
+</html>
