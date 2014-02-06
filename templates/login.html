@@ -21,7 +21,6 @@
       <form method="POST" action="/" class="form-signin">
         <h2 class="form-signin-heading">ESA CM005 Tracking</h2>
         <h3 class="form-signin-heading">Please sign in</h3>
-        <h4 class="form-signin-heading">New users must be registered by emailing kfarrell@mtacc-esa.info</h4>
         {{ form.hidden_tag() }}
             {% call macro.form_field(form.email) %} {% endcall %}
             {% call macro.form_field(form.password) %} {% endcall %}

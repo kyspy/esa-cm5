@@ -1,10 +1,9 @@
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, url_for, flash, g
 from cm5_app import app, db, login_manager
 from forms import TrackingForm, LoginForm
 from models import Track, Area, Shift, Material, User
 from datetime import datetime
-from flask.ext.login import login_user, login_required, logout_user
-from sqlalchemy.orm.exc import NoResultFound
+from flask.ext.login import login_user, login_required, logout_user, current_user
 
 def flash_errors(form):
     for field, errors in form.errors.items():
@@ -14,56 +13,31 @@ def flash_errors(form):
                     error
             ))
 
-def add_users_db():
-    """
-    Add users here to control access
-    """
-
-    first_names = [
-        'Kyla', 'Oleg', 'David', 'Test'
-    ]
-    last_names = [
-        'Farrell', 'Moskovich', 'Deisadze', 'Tester'
-    ]
-    email = [
-        'kfarrell@mtacc-esa.info', 'omoshkov@mtacc-esa.info', 'ddeisadze@mtacc-esa.info', 'test@gmail.com'
-    ]
-    password = [
-        'Esalirovc123', 'Esalirovc1', 'Esalirovc12', 'testtesttest'
-    ]
-
-    for i in range(len(first_names)):
-        try:
-            User.query.filter(User.email == email[i]).one()
-        except NoResultFound:
-            user = User()
-            user.firstname = first_names[i]
-            user.lastname = last_names[i]
-            user.email = email[i]
-            user.password = password[i]
-            db.session.add(user)
-
-    db.session.commit()
-    return
-
 @login_manager.user_loader
-def load_user(email):
-    return User.get(email)
+def load_user(id):
+    return User.query.get(int(id))
 
-@app.route('/', methods=('GET', 'POST'))
-@app.route("/index", methods=["GET", "POST"])
+@app.before_request
+def before_request():
+    g.user = current_user
+
+@app.route('/')
+@app.route("/index")
+@login_required
 def index():
-    add_users_db()
-    users = User.query.order_by(User.id)
-    return render_template('index.html', users=users)
+    return
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    add_users_db()
     form = LoginForm()
     if form.validate_on_submit():
-        user = form.get_user()
-        login_user(user)
+        email = form.email.data
+        password = form.password.data
+        registered_user = User.query.filter_by(email=email, password=password).first()
+        if registered_user is None:
+            flash ('Username or password is invalid. Please email kfarrell@mtacc-esa.info to be registered', 'error')
+            return redirect(url_for('login'))
+        login_user(registered_user)
         flash("Logged in successfully.")
         return redirect(url_for("dashboard"))
     return render_template('login.html', form=form)
@@ -127,7 +101,7 @@ def track_waterproofing():
     materials = Material.query.order_by(Material.id)
     return render_template('track_waterproofing.html', form=form, tracks=tracks, areas=areas, shifts=shifts, materials=materials)
 
-@app.route("/dashboard")
+@app.route("/dashboard", methods=('GET', 'POST'))
 @login_required
 def dashboard():
     return render_template('dashboard.html')
