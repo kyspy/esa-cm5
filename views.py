@@ -22,7 +22,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.get(form.email.data)
-        if user and form.data.password == user.password:
+        if user and form.password.data == user.password:
             login_user(user)
             flash('Logged in successfully.')
             return redirect(url_for('dashboard'))
@@ -36,10 +36,11 @@ def logout():
 
 @app.route('/')
 @app.route('/index')
+@login_required
 def index():
     return 'Welcome to ESA-CM05 Tracking'
 
-@app.route('/track_waterproofing', methods=('GET', 'POST'))
+@app.route('/track_waterproofing', methods=['GET', 'POST'])
 def track_waterproofing():
     form = TrackingForm()
     if form.validate_on_submit():
@@ -92,7 +93,7 @@ def track_waterproofing():
     materials = Material.query.order_by(Material.id)
     return render_template('track_waterproofing.html', form=form, tracks=tracks, areas=areas, shifts=shifts, materials=materials)
 
-@app.route("/dashboard", methods=('GET', 'POST'))
+@app.route("/dashboard")
 @login_required
 def dashboard():
     return render_template('dashboard.html')

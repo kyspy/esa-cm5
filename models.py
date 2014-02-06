@@ -77,19 +77,17 @@ class Track(db.Model):
         return unicode(self.id)
 
 class User(UserMixin):
-    def __init__(self, firstname, lastname, email, password):
-        self.firstname = firstname
-        self.lastname = lastname
-        self.email = email
+    def __init__(self, email, password):
+        self.id = email
         self.password = password
 
     @staticmethod
     def get(email):
         for user in USERS:
-            if user[2] == email:
-                return User(user[0], user[1], user[2], user[3])
+            if user[0] == email:
+                return User(user[0], user[1])
         return None
 
-USERS = (("Kyla", "Farrell", "kfarrell@mtacc-esa.info", "Esalirovc123"),
-          ("Oleg", "Moshkovich", "omoshkov@mtacc-esa.info", "Esalirovc1")
+USERS = (("kfarrell@mtacc-esa.info", "Esalirovc123"),
+          ("omoshkov@mtacc-esa.info", "Esalirovc1")
           )
