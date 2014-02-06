@@ -38,9 +38,10 @@ def logout():
 @app.route('/index')
 @login_required
 def index():
-    return 'Welcome to ESA-CM05 Tracking'
+    return render_template('dashboard.html')
 
 @app.route('/track_waterproofing', methods=['GET', 'POST'])
+@login_required
 def track_waterproofing():
     form = TrackingForm()
     if form.validate_on_submit():

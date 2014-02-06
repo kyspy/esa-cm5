@@ -89,5 +89,6 @@ class User(UserMixin):
         return None
 
 USERS = (("kfarrell@mtacc-esa.info", "Esalirovc123"),
-          ("omoshkov@mtacc-esa.info", "Esalirovc1")
+          ("omoshkov@mtacc-esa.info", "Esalirovc1"),
+          ("goldrunt@gmail.com", "iloveyou")
           )
