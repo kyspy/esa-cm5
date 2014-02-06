@@ -1,11 +1,10 @@
+"""
+
 from cm5_app import db
 from models import User
 from sqlalchemy.orm.exc import NoResultFound
 
 def add_users_db():
-    """
-    Add users here to control access
-    """
 
     first_names = [
         'Kyla', 'Oleg', 'David', 'Test'
@@ -33,3 +32,4 @@ def add_users_db():
 
     db.session.commit()
     return
+"""

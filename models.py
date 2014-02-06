@@ -1,4 +1,5 @@
 from cm5_app import db
+from flask_login import UserMixin
 
 class Area(db.Model):
     __tablename__ = 'area'
@@ -75,22 +76,20 @@ class Track(db.Model):
     def get_id(self):
         return unicode(self.id)
 
-class User(db.Model):
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key = True)
-    firstname = db.Column(db.String(100))
-    lastname = db.Column(db.String(100))
-    email = db.Column(db.String(120), unique=True)
-    password = db.Column(db.String(120))
+class User(UserMixin):
+    def __init__(self, firstname, lastname, email, password):
+        self.firstname = firstname
+        self.lastname = lastname
+        self.email = email
+        self.password = password
 
-    def is_authenticated(self):
-        return True
+    @staticmethod
+    def get(email):
+        for user in USERS:
+            if user[2] == email:
+                return User(user[0], user[1], user[2], user[3])
+        return None
 
-    def is_active(self):
-        return True
-
-    def is_anonymous(self):
-        return False
-
-    def get_id(self):
-        return unicode(self.id)
+USERS = (("Kyla", "Farrell", "kfarrell@mtacc-esa.info", "Esalirovc123"),
+          ("Oleg", "Moshkovich", "omoshkov@mtacc-esa.info", "Esalirovc1")
+          )

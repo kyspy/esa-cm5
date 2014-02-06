@@ -1,9 +1,9 @@
-from flask import render_template, redirect, url_for, flash, g
+from flask import render_template, redirect, url_for, flash
 from cm5_app import app, db, login_manager
 from forms import TrackingForm, LoginForm
 from models import Track, Area, Shift, Material, User
 from datetime import datetime
-from flask.ext.login import login_user, login_required, logout_user, current_user
+from flask.ext.login import login_user, login_required, logout_user
 
 def flash_errors(form):
     for field, errors in form.errors.items():
@@ -14,32 +14,18 @@ def flash_errors(form):
             ))
 
 @login_manager.user_loader
-def load_user(id):
-    return User.query.get(int(id))
-
-@app.before_request
-def before_request():
-    g.user = current_user
-
-@app.route('/')
-@app.route("/index")
-@login_required
-def index():
-    return
+def load_user(email):
+    return User.get(email)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        email = form.email.data
-        password = form.password.data
-        registered_user = User.query.filter_by(email=email, password=password).first()
-        if registered_user is None:
-            flash ('Username or password is invalid. Please email kfarrell@mtacc-esa.info to be registered', 'error')
-            return redirect(url_for('login'))
-        login_user(registered_user)
-        flash("Logged in successfully.")
-        return redirect(url_for("dashboard"))
+        user = User.get(form.email.data)
+        if user and form.data.password == user.password:
+            login_user(user)
+            flash('Logged in successfully.')
+            return redirect(url_for('dashboard'))
     return render_template('login.html', form=form)
 
 @app.route("/logout")
@@ -47,6 +33,11 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+@app.route('/')
+@app.route('/index')
+def index():
+    return 'Welcome to ESA-CM05 Tracking'
 
 @app.route('/track_waterproofing', methods=('GET', 'POST'))
 def track_waterproofing():
