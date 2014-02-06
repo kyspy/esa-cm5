@@ -16,20 +16,14 @@
   </head>
 
   <body>
-    {% import 'macro.html' as macro %}
     <div class="container">
 
-      <form method="POST" action="/" class="form-signin">
-        <h2 class="form-signin-heading">ESA CM005 Tracking</h2>
-        <h3 class="form-signin-heading">Please sign in</h3>
-        <h4 class="form-signin-heading">New users must be registered by emailing kfarrell@mtacc-esa.info</h4>
-        {{ form.hidden_tag() }}
-            {% call macro.form_field(form.email) %} {% endcall %}
-            {% call macro.form_field(form.password) %} {% endcall %}
-            <p> <input type="submit" value="Submit" class="btn btn-primary"> </p>
-      </form>
+      Welcome to the App
 
-    </div> <!-- /container -->
+      Users:
+      {% for user in users %}
+        {{user.id}} {{user.email}} {{user.password}} {{user.firstname}}  {{user.lastname}}
+      {% endfor %}
 
   </body>
 </html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
+
+    <title>Tracking App Signin</title>
+    <link rel="stylesheet" href="../static/css/bootstrap.css">
+    <link rel="stylesheet" href="../static/css/bootstrap_signin.css">
+
+  </head>
+
+  <body>
+    {% import 'macro.html' as macro %}
+    <div class="container">
+
+      <form method="POST" action="/" class="form-signin">
+        <h2 class="form-signin-heading">ESA CM005 Tracking</h2>
+        <h3 class="form-signin-heading">Add new user</h3>
+        {{ form.hidden_tag() }}
+            {% call macro.form_field(form.firstname) %} {% endcall %}
+            {% call macro.form_field(form.lastname) %} {% endcall %}
+            {% call macro.form_field(form.email) %} {% endcall %}
+            {% call macro.form_field(form.password) %} {% endcall %}
+            <p> <input type="submit" value="Create Account" class="btn btn-primary"> </p>
+      </form>
+
+    </div> <!-- /container -->
+
+  </body>
+</html>
