@@ -1,9 +1,13 @@
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, url_for, flash, Response
 from cm5_app import app, db, login_manager
 from forms import TrackingForm, LoginForm
 from models import Track, Area, Shift, Material, User
 from datetime import datetime
 from flask.ext.login import login_user, login_required, logout_user
+import xlwt
+import StringIO
+import mimetypes
+from werkzeug.datastructures import Headers
 
 def flash_errors(form):
     for field, errors in form.errors.items():
@@ -39,6 +43,11 @@ def logout():
 @login_required
 def index():
     return render_template('dashboard.html')
+
+@app.route("/export_waterproofing")
+@login_required
+def export_waterproofing():
+    return render_template('export_waterproofing.html')
 
 @app.route('/track_waterproofing', methods=['GET', 'POST'])
 @login_required
@@ -93,4 +102,71 @@ def track_waterproofing():
     shifts = Shift.query.order_by(Shift.id)
     materials = Material.query.order_by(Material.id)
     return render_template('track_waterproofing.html', form=form, tracks=tracks, areas=areas, shifts=shifts, materials=materials)
+
+@app.route('/export', methods=['GET', 'POST'])
+def export_view():
+    #########################
+    # Code for creating Flask
+    # response
+    #########################
+    response = Response()
+    response.status_code = 200
+
+
+    ##################################
+    # Code for creating Excel data and
+    # inserting into Flask response
+    ##################################
+    book = xlwt.Workbook()
+
+    sheet1 = book.add_sheet('Sheet 1')
+    book.add_sheet('Sheet 2')
+    sheet1.write(0,0,'A1')
+    sheet1.write(0,1,'B1')
+    row1 = sheet1.row(1)
+    row1.write(0,'A2')
+    row1.write(1,'B2')
+    sheet1.col(0).width = 10000
+    sheet2 = book.get_sheet(1)
+    sheet2.row(0).write(0,'Sheet 2 A1')
+    sheet2.row(0).write(1,'Sheet 2 B1')
+    sheet2.flush_row_data()
+    sheet2.write(1,0,'Sheet 2 A3')
+    sheet2.col(0).width = 5000
+    sheet2.col(0).hidden = True
+
+    output = StringIO.StringIO()
+    book.save(output)
+    response.data = output.getvalue()
+
+    ################################
+    # Code for setting correct
+    # headers for jquery.fileDownload
+    #################################
+    filename = 'export.xls'
+    mimetype_tuple = mimetypes.guess_type(filename)
+
+    #HTTP headers for forcing file download
+    response_headers = Headers({
+            'Pragma': "public",  # required,
+            'Expires': '0',
+            'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+            'Cache-Control': 'private',  # required for certain browsers,
+            'Content-Type': mimetype_tuple[0],
+            'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+            'Content-Transfer-Encoding': 'binary',
+            'Content-Length': len(response.data)
+        })
+
+    if not mimetype_tuple[1] is None:
+        response.update({
+                'Content-Encoding': mimetype_tuple[1]
+            })
+
+    response.headers = response_headers
+
+    #as per jquery.fileDownload.js requirements
+    response.set_cookie('fileDownload', 'true', path='/')
+
+    return response
 
