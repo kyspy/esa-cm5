@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, Response
+from flask import render_template, redirect, url_for, flash, Response, request
 from cm5_app import app, db, login_manager
 from forms import TrackingForm, LoginForm
 from models import Track, Area, Shift, Material, User
@@ -44,10 +44,14 @@ def logout():
 def index():
     return render_template('dashboard.html')
 
-@app.route("/export_waterproofing")
+@app.route("/export_waterproofing", methods=['GET', 'POST'])
 @login_required
 def export_waterproofing():
-    return render_template('export_waterproofing.html')
+    if request.method == 'POST':
+        if request.form['submit'] == 'Export All Tracked Waterproofing as Excel':
+            return render_template('export_waterproofing.html')
+    elif request.method == 'GET':
+        return render_template('export_waterproofing.html')
 
 @app.route('/track_waterproofing', methods=['GET', 'POST'])
 @login_required
@@ -103,47 +107,65 @@ def track_waterproofing():
     materials = Material.query.order_by(Material.id)
     return render_template('track_waterproofing.html', form=form, tracks=tracks, areas=areas, shifts=shifts, materials=materials)
 
-@app.route('/export', methods=['GET', 'POST'])
-def export_view():
-    #########################
-    # Code for creating Flask
-    # response
-    #########################
+@app.route('/download_all_excel', methods=['GET', 'POST'])
+def download_all_excel():
     response = Response()
     response.status_code = 200
 
-
-    ##################################
-    # Code for creating Excel data and
-    # inserting into Flask response
-    ##################################
     book = xlwt.Workbook()
 
     sheet1 = book.add_sheet('Sheet 1')
-    book.add_sheet('Sheet 2')
-    sheet1.write(0,0,'A1')
-    sheet1.write(0,1,'B1')
-    row1 = sheet1.row(1)
-    row1.write(0,'A2')
-    row1.write(1,'B2')
-    sheet1.col(0).width = 10000
-    sheet2 = book.get_sheet(1)
-    sheet2.row(0).write(0,'Sheet 2 A1')
-    sheet2.row(0).write(1,'Sheet 2 B1')
-    sheet2.flush_row_data()
-    sheet2.write(1,0,'Sheet 2 A3')
-    sheet2.col(0).width = 5000
-    sheet2.col(0).hidden = True
+
+    tracks = Track.query.order_by(Track.id)
+    areas = Area.query.order_by(Area.id)
+    shifts = Shift.query.order_by(Shift.id)
+    materials = Material.query.order_by(Material.id)
+    i = 0
+
+    sheet1.row(i).write(0,'ID')
+    sheet1.row(i).write(1,'Date')
+    sheet1.row(i).write(2,'Shift')
+    sheet1.row(i).write(3,'Shift Start')
+    sheet1.row(i).write(4,'Shift End')
+    sheet1.row(i).write(5,'Area')
+    sheet1.row(i).write(6,'Location')
+    sheet1.row(i).write(7,'Station Start')
+    sheet1.row(i).write(8,'Station End')
+    sheet1.row(i).write(9, 'Material')
+    sheet1.row(i).write(10, 'Unit')
+    sheet1.row(i).write(11, 'Laborer')
+    sheet1.row(i).write(12, 'Foreman')
+    sheet1.row(i).write(13, 'Super')
+
+    for t in tracks:
+        i += 1
+        sheet1.row(i).write(0,t.id)
+        sheet1.row(i).write(1,str(t.date))
+        for s in shifts:
+            if s.id == t.shift_id:
+                sheet1.row(i).write(2,s.shift)
+                sheet1.row(i).write(3,s.start)
+                sheet1.row(i).write(4,s.end)
+        for a in areas:
+            if a.id == t.area_id:
+                sheet1.row(i).write(5,a.area)
+                sheet1.row(i).write(6,a.location)
+        sheet1.row(i).write(7,t.station_start)
+        sheet1.row(i).write(8,t.station_end)
+        for m in materials:
+            if m.id == t.material_id:
+                sheet1.row(i).write(9,m.material)
+                sheet1.row(i).write(10,m.unit)
+        sheet1.row(i).write(11,t.laborer)
+        sheet1.row(i).write(12,t.foreman)
+        sheet1.row(i).write(13,t.supervisor)
+
 
     output = StringIO.StringIO()
     book.save(output)
     response.data = output.getvalue()
 
-    ################################
-    # Code for setting correct
-    # headers for jquery.fileDownload
-    #################################
-    filename = 'export.xls'
+    filename = 'ESA CM005 All Waterproofing.xls'
     mimetype_tuple = mimetypes.guess_type(filename)
 
     #HTTP headers for forcing file download

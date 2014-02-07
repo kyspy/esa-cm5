@@ -1,5 +1,5 @@
 from flask.ext.wtf import Form
-from wtforms import FloatField, DateField, StringField, IntegerField, TextField, PasswordField, validators
+from wtforms import FloatField, DateField, StringField, IntegerField, TextField, PasswordField, validators, SubmitField
 from wtforms.validators import Required
 
 class TrackingForm(Form):
@@ -17,9 +17,11 @@ class TrackingForm(Form):
     laborer = IntegerField('Laborer')
     foreman = IntegerField('Foreman')
     supervisor = IntegerField('Supervisor')
+    #look into SelectField for Shift and Area
 
 
 class LoginForm(Form):
-  email = TextField("Email",  [validators.Required("Please enter your email address."), validators.Email("Please enter your email address.")])
-  password = PasswordField('Password', [validators.Required("Please enter a password.")])
+    email = TextField("Email",  [validators.Required("Please enter your email address."), validators.Email("Please enter your email address.")])
+    password = PasswordField('Password', [validators.Required("Please enter a password.")])
+
 
