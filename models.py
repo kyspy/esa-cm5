@@ -90,5 +90,5 @@ class User(UserMixin):
 
 USERS = (("kfarrell@mtacc-esa.info", "Esalirovc123"),
           ("omoshkov@mtacc-esa.info", "Esalirovc1"),
-          ("goldrunt@gmail.com", "iloveyou")
+          ("goldrunt@gmail.com", "goldrunt")
           )

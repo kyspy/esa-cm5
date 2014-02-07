@@ -25,7 +25,7 @@ def login():
         if user and form.password.data == user.password:
             login_user(user)
             flash('Logged in successfully.')
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('index'))
     return render_template('login.html', form=form)
 
 @app.route("/logout")
@@ -35,7 +35,7 @@ def logout():
     return redirect(url_for('index'))
 
 @app.route('/')
-@app.route('/index')
+@app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
     return render_template('dashboard.html')
@@ -94,7 +94,3 @@ def track_waterproofing():
     materials = Material.query.order_by(Material.id)
     return render_template('track_waterproofing.html', form=form, tracks=tracks, areas=areas, shifts=shifts, materials=materials)
 
-@app.route("/dashboard")
-@login_required
-def dashboard():
-    return render_template('dashboard.html')

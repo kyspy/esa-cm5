@@ -1,9 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
 
-          <h3 class="page-header">Track: Waterproofing</h3>
+          <h2 class="page-header">Track: Waterproofing</h2>
           <div >
-            <form method="POST" action="/" class="form-inline">
+            <form method="POST" action="" class="form-inline">
             {{ form.hidden_tag() }}
             {% call macro.form_field(form.date) %} {% endcall %}
             {% call macro.form_field(form.quantity) %} {% endcall %}
@@ -32,7 +32,7 @@
             <p> <input type="submit" value="Submit" class="btn btn-primary"> </p>
             </form>
           </div>
-          <h4 class="sub-header"></h4>
+          <p></p>
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>

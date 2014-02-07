@@ -11,62 +11,66 @@
 
     <title>ESA CM005 Tracking App</title>
     <link rel="stylesheet" href="../static/css/bootstrap.css">
-    <link rel="stylesheet" href="../static/css/bootstrap_dashboard.css">
+    <link rel="stylesheet" href="../static/css/bootstrap_navbar.css">
+
 
   </head>
-
   <body>
     {% import 'macro.html' as macro %}
-    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <nav class="navbar navbar-default navbar-static-top" role="navigation">
       <div class="container-fluid">
         <div class="navbar-header">
-          <a class="navbar-brand" href="{{ url_for('dashboard') }}">ESA CM005</a>
+            <a class="navbar-brand" href="{{ url_for('index') }}">ESA-CM005</a>
         </div>
-         <div class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="{{ url_for('logout') }}">Logout</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-          <ul class="nav nav-sidebar">
-            <li class="active"><p>Track</p></li>
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Track<b class="caret"></b></a>
+          <ul class="dropdown-menu">
             <li><a href="{{ url_for('track_waterproofing') }}">Waterproofing</a></li>
             <li><a href="#">Rebar</a></li>
             <li><a href="#">Concrete</a></li>
-            <li><a href="#">Waterproofing PVC</a></li>
+            <li><a href="#">PVC</a></li>
           </ul>
-          <ul class="nav nav-sidebar">
-            <li class="active"><p>Reports</p></li>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Report<b class="caret"></b></a>
+          <ul class="dropdown-menu">
             <li><a href="#">Waterproofing</a></li>
             <li><a href="#">Rebar</a></li>
             <li><a href="#">Concrete</a></li>
-            <li><a href="#">Waterproofing PVC</a></li>
+            <li><a href="#">PVC</a></li>
           </ul>
-          <ul class="nav nav-sidebar">
-            <li class="active"><p>Export</p></li>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Export<b class="caret"></b></a>
+          <ul class="dropdown-menu">
             <li><a href="#">Waterproofing</a></li>
             <li><a href="#">Rebar</a></li>
             <li><a href="#">Concrete</a></li>
-            <li><a href="#">Waterproofing PVC</a></li>
+            <li><a href="#">PVC</a></li>
           </ul>
-        </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        </li>
+        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+  </nav>
+    <div class="container">
+        <div class="starter-template">
 
         {% block content %} {% endblock content %}
 
         </div>
-      </div>
     </div>
+
+
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-    <script src="../../dist/js/bootstrap.min.js"></script>
-    <script src="../../assets/js/docs.min.js"></script>
+    <script src="../../static/js/bootstrap.min.js"></script>
   </body>
 </html>
