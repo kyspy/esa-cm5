@@ -38,6 +38,11 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+@app.route("/3d")
+@login_required
+def threed():
+    return render_template('3d.html')
+
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])
 @login_required
