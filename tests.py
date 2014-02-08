@@ -8,7 +8,8 @@ from config import basedir
 from cm5_app import app, db
 from models import Track, Area, Material, Shift
 
-class TestCase(unittest.TestCase):
+
+class TestDatabase(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
         app.config['CSRF_ENABLED'] = False

@@ -53,8 +53,7 @@ def index():
 @login_required
 def export_waterproofing():
     if request.method == 'POST':
-        if request.form['submit'] == 'Export All Tracked Waterproofing as Excel':
-            return render_template('export_waterproofing.html')
+        return render_template('export_waterproofing.html')
     elif request.method == 'GET':
         return render_template('export_waterproofing.html')
 
@@ -106,11 +105,8 @@ def track_waterproofing():
         db.session.commit()
         return redirect(url_for('track_waterproofing'))
 
-    tracks = Track.query.order_by(Track.id.desc()).slice(0,5)
-    areas = Area.query.order_by(Area.id)
-    shifts = Shift.query.order_by(Shift.id)
-    materials = Material.query.order_by(Material.id)
-    return render_template('track_waterproofing.html', form=form, tracks=tracks, areas=areas, shifts=shifts, materials=materials)
+    lines = Track.query.join(Area).join(Shift).join(Material).filter(Area.id == Track.area_id).filter(Shift.id == Track.shift_id).filter(Material.id == Track.material_id).order_by(Track.id.desc()).slice(0,5)
+    return render_template('track_waterproofing.html', form=form, lines=lines)
 
 @app.route('/download_all_excel', methods=['GET', 'POST'])
 def download_all_excel():
@@ -121,10 +117,7 @@ def download_all_excel():
 
     sheet1 = book.add_sheet('Sheet 1')
 
-    tracks = Track.query.order_by(Track.id)
-    areas = Area.query.order_by(Area.id)
-    shifts = Shift.query.order_by(Shift.id)
-    materials = Material.query.order_by(Material.id)
+    lines = Track.query.join(Area).join(Shift).join(Material).filter(Area.id == Track.area_id).filter(Shift.id == Track.shift_id).filter(Material.id == Track.material_id).all()
     i = 0
 
     sheet1.row(i).write(0,'ID')
@@ -136,35 +129,87 @@ def download_all_excel():
     sheet1.row(i).write(6,'Location')
     sheet1.row(i).write(7,'Station Start')
     sheet1.row(i).write(8,'Station End')
-    sheet1.row(i).write(9, 'Material')
-    sheet1.row(i).write(10, 'Unit')
-    sheet1.row(i).write(11, 'Laborer')
-    sheet1.row(i).write(12, 'Foreman')
-    sheet1.row(i).write(13, 'Super')
+    sheet1.row(i).write(9,'Quantity')
+    sheet1.row(i).write(10, 'Material')
+    sheet1.row(i).write(11, 'Unit')
+    sheet1.row(i).write(12, 'Laborer')
+    sheet1.row(i).write(13, 'Foreman')
+    sheet1.row(i).write(14, 'Super')
 
-    for t in tracks:
+    for li in lines:
         i += 1
-        sheet1.row(i).write(0,t.id)
-        sheet1.row(i).write(1,str(t.date))
-        for s in shifts:
-            if s.id == t.shift_id:
-                sheet1.row(i).write(2,s.shift)
-                sheet1.row(i).write(3,s.start)
-                sheet1.row(i).write(4,s.end)
-        for a in areas:
-            if a.id == t.area_id:
-                sheet1.row(i).write(5,a.area)
-                sheet1.row(i).write(6,a.location)
-        sheet1.row(i).write(7,t.station_start)
-        sheet1.row(i).write(8,t.station_end)
-        for m in materials:
-            if m.id == t.material_id:
-                sheet1.row(i).write(9,m.material)
-                sheet1.row(i).write(10,m.unit)
-        sheet1.row(i).write(11,t.laborer)
-        sheet1.row(i).write(12,t.foreman)
-        sheet1.row(i).write(13,t.supervisor)
+        sheet1.row(i).write(0,li.id)
+        sheet1.row(i).write(1,str(li.date))
+        sheet1.row(i).write(2,li.shift.shift)
+        sheet1.row(i).write(3,li.shift.start)
+        sheet1.row(i).write(4,li.shift.end)
+        sheet1.row(i).write(5,li.area.area)
+        sheet1.row(i).write(6,li.area.location)
+        sheet1.row(i).write(7,li.station_start)
+        sheet1.row(i).write(8,li.station_end)
+        sheet1.row(i).write(9,li.quantity)
+        sheet1.row(i).write(10,li.material.material)
+        sheet1.row(i).write(11,li.material.unit)
+        sheet1.row(i).write(12,li.laborer)
+        sheet1.row(i).write(13,li.foreman)
+        sheet1.row(i).write(14,li.supervisor)
 
+
+    output = StringIO.StringIO()
+    book.save(output)
+    response.data = output.getvalue()
+
+    filename = 'ESA CM005 All Waterproofing.xls'
+    mimetype_tuple = mimetypes.guess_type(filename)
+
+    #HTTP headers for forcing file download
+    response_headers = Headers({
+            'Pragma': "public",  # required,
+            'Expires': '0',
+            'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+            'Cache-Control': 'private',  # required for certain browsers,
+            'Content-Type': mimetype_tuple[0],
+            'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+            'Content-Transfer-Encoding': 'binary',
+            'Content-Length': len(response.data)
+        })
+
+    if not mimetype_tuple[1] is None:
+        response.update({
+                'Content-Encoding': mimetype_tuple[1]
+            })
+
+    response.headers = response_headers
+
+    #as per jquery.fileDownload.js requirements
+    response.set_cookie('fileDownload', 'true', path='/')
+
+    return response
+
+@app.route('/download_bim_excel', methods=['GET', 'POST'])
+def download_bim_excel():
+    response = Response()
+    response.status_code = 200
+
+    book = xlwt.Workbook()
+
+    sheet1 = book.add_sheet('Sheet 1')
+
+    lines = Track.query.join(Area).join(Shift).join(Material).filter(Area.id == Track.area_id).filter(Shift.id == Track.shift_id).filter(Material.id == Track.material_id).all()
+    i = 0
+
+    for li in lines:
+        start = (int(round(li.station_start*10)*10))
+        end = (int(round(li.station_end*10)*10))
+        if end > start:
+            num = (end - start)/10
+            for n in range(0, num):
+                s = start + n*10
+                e = s+10
+                sheet1.row(i).write(0,li.area.area + '_' + li.area.location + '_' + str(s) + '_' + str(e))
+                sheet1.row(i).write(1,'Complete')
+                sheet1.row(i).write(2,str(li.date))
+                i += 1
 
     output = StringIO.StringIO()
     book.save(output)
