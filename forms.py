@@ -1,5 +1,5 @@
 from flask.ext.wtf import Form
-from wtforms import FloatField, DateField, StringField, IntegerField, TextField, PasswordField, validators
+from wtforms import FloatField, DateField, StringField, IntegerField, TextField, PasswordField, FileField, validators
 from wtforms.validators import Required
 
 class TrackingForm(Form):
@@ -23,8 +23,8 @@ class LoginForm(Form):
     email = TextField("Email",  [validators.Required("Please enter your email address."), validators.Email("Please enter your email address.")])
     password = PasswordField('Password', [validators.Required("Please enter a password.")])
 
-class ExportDatesForm(Form):
-    date_start =  DateField('Start Date (MM/DD/YYYY)', validators=[Required()], format='%m/%d/%Y')
-    date_end =  DateField('Start Date (MM/DD/YYYY)', validators=[Required()], format='%m/%d/%Y')
+class WeeklyImgForm(Form):
+    img = FileField('Weekly Image')
+    date = DateField('Report Date (MM/DD/YYYY)', validators=[Required()], format='%m/%d/%Y')
 
 

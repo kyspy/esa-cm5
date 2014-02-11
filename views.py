@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, Response, request
 from cm5_app import app, db, login_manager
-from forms import TrackingForm, LoginForm
+from forms import TrackingForm, LoginForm, WeeklyImgForm
 from models import Track, Area, Shift, Material, User, Bimlink
 from datetime import datetime
 from flask.ext.login import login_user, login_required, logout_user
@@ -8,6 +8,7 @@ import xlwt
 import StringIO
 import mimetypes
 from werkzeug.datastructures import Headers
+from werkzeug.utils import secure_filename
 
 def flash_errors(form):
     for field, errors in form.errors.items():
@@ -47,6 +48,11 @@ def threed():
 def test_bimlink():
     test = Bimlink.query.order_by(Bimlink.excel_id)
     return render_template('test_bimlink.html', test=test)
+
+@app.route("/bim_upload", methods=["GET", "POST"])
+def bim_upload():
+    form = WeeklyImgForm()
+    return render_template('bim_upload.html', form=form)
 
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])
