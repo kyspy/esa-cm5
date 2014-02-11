@@ -56,6 +56,7 @@ def test_bimlink():
     return render_template('test_bimlink.html', test=test)
 
 @app.route("/bim_upload", methods=["GET", "POST"])
+@login_required
 def bim_upload():
     form = WeeklyImgForm()
     if form.validate_on_submit():
@@ -63,7 +64,13 @@ def bim_upload():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('report_waterproofing'))
     return render_template('bim_upload.html', form=form)
+
+@app.route("/report_waterproofing", methods=["GET", "POST"])
+@login_required
+def report_waterproofing():
+    return render_template('report_waterproofing.html')
 
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])
