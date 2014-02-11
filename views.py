@@ -7,8 +7,10 @@ from flask.ext.login import login_user, login_required, logout_user
 import xlwt
 import StringIO
 import mimetypes
+import os
 from werkzeug.datastructures import Headers
 from werkzeug.utils import secure_filename
+from config import UPLOAD_FOLDER, ALLOWED_EXTENSIONS
 
 def flash_errors(form):
     for field, errors in form.errors.items():
@@ -17,6 +19,10 @@ def flash_errors(form):
                     getattr(form, field).label.text,
                     error
             ))
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 @login_manager.user_loader
 def load_user(email):
@@ -52,6 +58,11 @@ def test_bimlink():
 @app.route("/bim_upload", methods=["GET", "POST"])
 def bim_upload():
     form = WeeklyImgForm()
+    if form.validate_on_submit():
+        file = form.img.data
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     return render_template('bim_upload.html', form=form)
 
 @app.route('/')

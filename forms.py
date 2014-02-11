@@ -24,7 +24,6 @@ class LoginForm(Form):
     password = PasswordField('Password', [validators.Required("Please enter a password.")])
 
 class WeeklyImgForm(Form):
-    img = FileField('Weekly Image')
-    date = DateField('Report Date (MM/DD/YYYY)', validators=[Required()], format='%m/%d/%Y')
+    img = FileField()
 
 
