@@ -1,6 +1,15 @@
 from cm5_app import db
 from flask_login import UserMixin
 
+class Bimlink(db.Model):
+    __tablename__ = 'bimlink'
+    revit_id = db.Column(db.Integer, primary_key = True)
+    excel_id = db.Column(db.String(60), unique=True)
+
+    def __init__(self, revit_id, excel_id):
+        self.revit_id = revit_id
+        self.excel_id = excel_id
+
 class Area(db.Model):
     __tablename__ = 'area'
     id = db.Column(db.Integer, primary_key = True)

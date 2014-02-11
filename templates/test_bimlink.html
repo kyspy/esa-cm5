@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block content %}
+
+               {% for t in test %}
+                   <p> {{t.revit_id}}, {{t.excel_id}}  </p>
+                {% endfor %}
+
+{% endblock content %}
+

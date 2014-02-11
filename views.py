@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, flash, Response, request
 from cm5_app import app, db, login_manager
 from forms import TrackingForm, LoginForm
-from models import Track, Area, Shift, Material, User
+from models import Track, Area, Shift, Material, User, Bimlink
 from datetime import datetime
 from flask.ext.login import login_user, login_required, logout_user
 import xlwt
@@ -42,6 +42,11 @@ def logout():
 @login_required
 def threed():
     return render_template('3d.html')
+
+@app.route("/test_bimlink")
+def test_bimlink():
+    test = Bimlink.query.order_by(Bimlink.excel_id)
+    return render_template('test_bimlink.html', test=test)
 
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])
@@ -159,7 +164,7 @@ def download_all_excel():
     book.save(output)
     response.data = output.getvalue()
 
-    filename = 'ESA CM005 All Waterproofing.xls'
+    filename = 'ESA CM005 Waterproofing_' + datetime.utcnow().strftime('%Y-%m-%d') + '.xls'
     mimetype_tuple = mimetypes.guess_type(filename)
 
     #HTTP headers for forcing file download
@@ -191,9 +196,10 @@ def download_bim_excel():
     response = Response()
     response.status_code = 200
 
-    book = xlwt.Workbook()
+    date = datetime.utcnow().strftime('%Y-%m-%d')
 
-    sheet1 = book.add_sheet('Sheet 1')
+    book = xlwt.Workbook()
+    sheet1 = book.add_sheet('BimLink ' + date)
 
     lines = Track.query.join(Area).join(Shift).join(Material).filter(Area.id == Track.area_id).filter(Shift.id == Track.shift_id).filter(Material.id == Track.material_id).all()
     i = 0
@@ -206,16 +212,19 @@ def download_bim_excel():
             for n in range(0, num):
                 s = start + n*10
                 e = s+10
-                sheet1.row(i).write(0,li.area.area + '_' + li.area.location + '_' + str(s) + '_' + str(e))
-                sheet1.row(i).write(1,'Complete')
-                sheet1.row(i).write(2,str(li.date))
+                excel_id = li.area.area + '_' + li.area.location + '_' + str(s) + '_' + str(e)
+                revit_id = Bimlink.query.filter_by(excel_id = excel_id).first()
+                sheet1.row(i).write(0, revit_id.revit_id)
+                sheet1.row(i).write(1,excel_id)
+                sheet1.row(i).write(2,'Complete')
+                sheet1.row(i).write(3,str(li.date))
                 i += 1
 
     output = StringIO.StringIO()
     book.save(output)
     response.data = output.getvalue()
 
-    filename = 'ESA CM005 All Waterproofing.xls'
+    filename = 'ESA CM005 Waterproofing BIMLink_' + date + '.xls'
     mimetype_tuple = mimetypes.guess_type(filename)
 
     #HTTP headers for forcing file download
