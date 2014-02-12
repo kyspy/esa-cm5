@@ -10,6 +10,16 @@ class Bimlink(db.Model):
         self.revit_id = revit_id
         self.excel_id = excel_id
 
+class Bimimage(db.Model):
+    __tablename__ = 'bimimage'
+    id = db.Column(db.Integer, primary_key = True)
+    img_filename = db.Column(db.String(60))
+    report_date = db.Column(db.String(60), unique=True)
+
+    def __init__(self, img_filename, report_date):
+        self.img_filename = img_filename
+        self.report_date = report_date
+
 class Area(db.Model):
     __tablename__ = 'area'
     id = db.Column(db.Integer, primary_key = True)
