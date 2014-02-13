@@ -1,14 +1,30 @@
 {% extends "layout.html" %}
 {% block content %}
 
-          <h2 class="page-header">Track: Waterproofing</h2>
-          <div >
+          <h2 class="page-header theme-showcase">Track: Waterproofing</h2>
+            <div class="navbar">
+            <form method="POST" class="navbar-form navbar-left" >
+            <input type="submit" value="Add Area" class="btn btn-default">
+            </form>
+            <form method="POST" action="" class="navbar-form navbar-left" >
+            <input type="submit" value="Add Shift" class="btn btn-default">
+            </form>
+            <form method="POST" action="" class="navbar-form navbar-left" >
+            <input type="submit" value="Add Material" class="btn btn-default">
+            </form>
+            <form method="POST" action="/delete_entry" name="submit" class="navbar-form navbar-left" >
+            <input type="submit" value="Delete Last Entry" class="btn btn-default">
+            </form>
+            </div>
+          <div class="container">
             <form method="POST" action="" class="form-inline">
             {{ form.hidden_tag() }}
+            <p>
             {% call macro.form_field(form.date) %} {% endcall %}
             {% call macro.form_field(form.quantity) %} {% endcall %}
+            </p>
             <p>
-            {% call macro.form_field(form.station_start) %} {% endcall %}
+            Stations: {% call macro.form_field(form.station_start) %} {% endcall %}
             {% call macro.form_field(form.station_end) %} {% endcall %}
             </p>
             <p>
@@ -22,31 +38,23 @@
             Material: {% call macro.form_field(form.material) %} {% endcall %}
             </p>
             <p>
+            Workers:
             {% call macro.form_field(form.laborer) %} {% endcall %}
             {% call macro.form_field(form.foreman) %} {% endcall %}
             {% call macro.form_field(form.supervisor) %} {% endcall %}
             </p>
             <p> <input type="submit" value="Submit" class="btn btn-primary"> </p>
             </form>
-
-            <form method="POST" action="" class="">
-            <input type="submit" value="Add Area" class="btn btn-primary">
-            </form>
-            <form method="POST" action="" class="">
-            <input type="submit" value="Add Shift" class="btn btn-primary">
-            </form>
-            <form method="POST" action="" class="">
-            <input type="submit" value="Add Material" class="btn btn-primary">
-            </form>
-          </div>
+            </div>
           <p></p>
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
                 <tr>
-                  <th></th>
+                  <th>ID</th>
                   <th>Date</th>
                   <th>Shift</th>
+                  <th>Area</th>
                   <th>Location</th>
                   <th>Station Start</th>
                   <th>Station End</th>
@@ -60,10 +68,11 @@
               <tbody>
                {% for line in lines %}
                 <tr>
-                  <td>Edit Entry Button</td>
+                <td>{{line.id}} </td>
                   <td>{{line.date}} </td>
                     <td>{{line.shift.shift}}</td>
-                    <td>{{line.area.location}}</td>
+                    <td>{{line.area.area}}</td>
+                    <td>{{line.location.location}}</td>
                   <td>{{line.station_start}}</td>
                   <td>{{line.station_end}}</td>
                   <td>{{line.quantity}}</td>

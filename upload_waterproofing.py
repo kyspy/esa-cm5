@@ -1,6 +1,6 @@
 from cm5_app import db
 from xlrd import open_workbook
-from models import Track, Area, Material, Shift
+from models import Track, Area, Material, Shift, Location
 from datetime import datetime
 
 def UploadWaterproofing():
@@ -38,14 +38,23 @@ def UploadWaterproofing():
         supervisor = supervisor)
 
         a = Area.query.filter_by(area = area).first()
-        a2 = Area.query.filter_by(location = location).first()
-        if a == None or a2 == None:
-            a = Area(area = area, location = location)
+        if a == None:
+            a = Area(area = area)
             a.tracks.append(t)
             db.session.add(a)
             db.session.commit()
         else:
             a.tracks.append(t)
+            db.session.commit()
+
+        l = Location.query.filter_by(location = location).first()
+        if l == None:
+            l = Location(location = location)
+            l.tracks.append(t)
+            db.session.add(l)
+            db.session.commit()
+        else:
+            l.tracks.append(t)
             db.session.commit()
 
         s = Shift.query.filter_by(shift = shift).first()

@@ -2,10 +2,13 @@ from flask.ext.wtf import Form
 from wtforms import FloatField, DateField, StringField, IntegerField, TextField, PasswordField, FileField, validators
 from wtforms.validators import Required
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from models import Area, Shift, Material
+from models import Area, Shift, Material, Location
 
 def getAllAreas():
     return Area.query.all()
+
+def getAllLocations():
+    return Location.query.all()
 
 def getAllShifts():
     return Shift.query.all()
@@ -20,7 +23,7 @@ class TrackingForm(Form):
     quantity = FloatField('Quantity', validators = [Required()])
     area = QuerySelectField(query_factory=getAllAreas,
                             get_label='area')
-    location = QuerySelectField(query_factory=getAllAreas,
+    location = QuerySelectField(query_factory=getAllLocations,
                             get_label='location')
     shift = QuerySelectField(query_factory=getAllShifts,
                             get_label='shift')

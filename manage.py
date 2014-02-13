@@ -42,13 +42,11 @@ class Bimimage(db.Model):
 class Area(db.Model):
     __tablename__ = 'area'
     id = db.Column(db.Integer, primary_key = True)
-    area = db.Column(db.String(20))
-    location = db.Column(db.String(20))
+    area = db.Column(db.String(20), unique = True)
     tracks = db.relationship('Track', backref='area', lazy='dynamic')
 
-    def __init__(self, area, location):
+    def __init__(self, area,):
         self.area = area
-        self.location = location
 
     def get_id(self):
         return unicode(self.id)
@@ -56,6 +54,20 @@ class Area(db.Model):
     def __repr__(self):
         return '<Area %r>' % self.area
 
+class Location(db.Model):
+    __tablename__ = 'location'
+    id = db.Column(db.Integer, primary_key = True)
+    location = db.Column(db.String(20), unique = True)
+    tracks = db.relationship('Track', backref='location', lazy='dynamic')
+
+    def __init__(self, location):
+        self.location = location
+
+    def get_id(self):
+        return unicode(self.id)
+
+    def __repr__(self):
+        return '<Area %r>' % self.area
 
 class Shift(db.Model):
     __tablename__ = 'shift'
@@ -99,6 +111,7 @@ class Track(db.Model):
     foreman = db.Column(db.Integer)
     supervisor = db.Column(db.Integer)
     area_id = db.Column(db.Integer, db.ForeignKey('area.id'))
+    location_id = db.Column(db.Integer, db.ForeignKey('location.id'))
     shift_id = db.Column(db.Integer, db.ForeignKey('shift.id'))
     material_id = db.Column(db.Integer, db.ForeignKey('material.id'))
 
