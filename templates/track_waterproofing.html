@@ -14,15 +14,18 @@
             <p>
             {% call macro.form_field(form.area) %} {% endcall %}
             {% call macro.form_field(form.location) %} {% endcall %}
+            Add Area
             </p>
             <p>
             {% call macro.form_field(form.shift) %} {% endcall %}
             {% call macro.form_field(form.start) %} {% endcall %}
             {% call macro.form_field(form.end) %} {% endcall %}
+            Add Shift
             </p>
             <p>
             {% call macro.form_field(form.material) %} {% endcall %}
             {% call macro.form_field(form.unit) %} {% endcall %}
+            Add Material
             </p>
             <p>
             {% call macro.form_field(form.laborer) %} {% endcall %}
@@ -37,18 +40,14 @@
             <table class="table table-striped">
               <thead>
                 <tr>
-                  <th>ID</th>
+                  <th></th>
                   <th>Date</th>
                   <th>Shift</th>
-                  <th>Shift Start</th>
-                  <th>Shift End</th>
-                  <th>Area</th>
                   <th>Location</th>
                   <th>Station Start</th>
                   <th>Station End</th>
                   <th>Quantity</th>
                   <th>Material</th>
-                  <th>Unit</th>
                   <th>Laborers</th>
                   <th>Foremen</th>
                   <th>Supers</th>
@@ -57,18 +56,14 @@
               <tbody>
                {% for line in lines %}
                 <tr>
-                  <td>{{line.id}}</td>
+                  <td>Edit Entry Button</td>
                   <td>{{line.date}} </td>
                     <td>{{line.shift.shift}}</td>
-                    <td>{{line.shift.start}}</td>
-                    <td>{{line.shift.end}}</td>
-                    <td>{{line.area.area}}</td>
                     <td>{{line.area.location}}</td>
                   <td>{{line.station_start}}</td>
                   <td>{{line.station_end}}</td>
                   <td>{{line.quantity}}</td>
                     <td>{{line.material.material}}</td>
-                    <td>{{line.material.unit}}</td>
                   <td>{{line.laborer}}</td>
                   <td>{{line.foreman}}</td>
                   <td>{{line.supervisor}}</td>

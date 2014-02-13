@@ -1,6 +1,43 @@
 {% extends "layout.html" %}
 {% block content %}
-    <h2 class="page-header">Weekly Report Here</h2>
+    <h3 align='center'> <img src="{{ '/static/img/MTA.jpg' }}" height = 40 />     CM005 - Manhattan Structures South     <img src="{{ '/static/img/LIRR.jpg' }}" height = 40 /></h3>
+    <h3 align='center' class="page-header">Waterproofing Installation Progress As of {{i.report_date }}</h3>
+
+    <div class="row">
+        <div class="col-lg-6">
+          <img src="{{ '/static/uploads/' + i.img_filename }}" width=100% />
+        </div>
+        <div class="col-lg-6">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Area</th>
+                  <th>Location</th>
+                  <th>Material</th>
+                  <th>Unit</th>
+                  <th>Percent Complete</th>
+                  <th>Quantity Installed</th>
+                </tr>
+              </thead>
+              <tbody>
+               {% for w in week %}
+                <tr>
+                    <td>{{w.area.area}}</td>
+                    <td>{{w.area.location}}</td>
+                    <td>{{w.material.material}}</td>
+                    <td>LF</td>
+                    <td>Percent</td>
+                  <td>{{w.quantity}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <p>Total:</p>
+       </div>
+      </div>
+
 
     <h3>Form to see older reports here</h3>
 

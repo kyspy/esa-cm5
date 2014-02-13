@@ -1,8 +1,8 @@
 from flask import render_template, redirect, url_for, flash, Response, request
 from cm5_app import app, db, login_manager
-from forms import TrackingForm, LoginForm, WeeklyImgForm
-from models import Track, Area, Shift, Material, User, Bimlink
-from datetime import datetime
+from forms import TrackingForm, LoginForm, WeeklyImgForm, WeeklyForm
+from models import Area, Shift, Material, User, Bimlink, Bimimage, Track
+from datetime import datetime, timedelta
 from flask.ext.login import login_user, login_required, logout_user
 import xlwt
 import StringIO
@@ -58,19 +58,72 @@ def test_bimlink():
 @app.route("/bim_upload", methods=["GET", "POST"])
 @login_required
 def bim_upload():
+    #figure out how to resize the image
+    form = WeeklyImgForm()
+    form2 = WeeklyForm()
+    #upload BIM Image
+    if form.validate_on_submit():
+        file = form.img.data
+        if file and allowed_file(file.filename):
+            exists = Bimimage.query.filter_by(report_date = form.date.data).first()
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            if exists:
+                exists.img_filename = file.filename
+                db.session.commit()
+                return redirect(url_for('report_waterproofing'))
+            else:
+                f = Bimimage(img_filename = file.filename, report_date = form.date.data)
+                db.session.add(f)
+                db.session.commit()
+                return redirect(url_for('report_waterproofing'))
+    #Upload other data
+
+    return render_template('bim_upload.html', form=form)
+
+@app.route("/create_waterproofing", methods=["GET", "POST"])
+@login_required
+def create_waterproofing():
+    #figure out how to resize the image
     form = WeeklyImgForm()
     if form.validate_on_submit():
         file = form.img.data
         if file and allowed_file(file.filename):
+            exists = Bimimage.query.filter_by(report_date = form.date.data).first()
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('report_waterproofing'))
+            if exists:
+                exists.img_filename = file.filename
+                db.session.commit()
+                return redirect(url_for('report_waterproofing'))
+            else:
+                f = Bimimage(img_filename = file.filename, report_date = form.date.data)
+                db.session.add(f)
+                db.session.commit()
+                return redirect(url_for('report_waterproofing'))
     return render_template('bim_upload.html', form=form)
 
 @app.route("/report_waterproofing", methods=["GET", "POST"])
 @login_required
 def report_waterproofing():
-    return render_template('report_waterproofing.html')
+    #get image
+    i = Bimimage.query.order_by(Bimimage.id.desc()).first()
+    #get image report date - 7 days and query database for entries in that week
+    report_date_end = i.report_date + timedelta(days=-7)
+    week = Track.query.join(Area).join(Material).filter(Area.id == Track.area_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.report_date)).order_by(Material.material)
+    #get total quantity installed for each material
+    material = Material.query.all()
+    #go through materials and count quantity
+    quantity = []
+    count = 0
+    for m in material:
+        for w in week:
+            if w.material == m.material:
+                quantity[count] = quantity[count] + w.quantity
+        count += count
+    #this is hard -- somehow total everything up for each material, each location and send it --location and material lead queries instead of tracks?
+
+    return render_template('report_waterproofing.html', i=i, week=week)
 
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])
@@ -238,10 +291,15 @@ def download_bim_excel():
                 e = s+10
                 excel_id = li.area.area + '_' + li.area.location + '_' + str(s) + '_' + str(e)
                 revit_id = Bimlink.query.filter_by(excel_id = excel_id).first()
-                sheet1.row(i).write(0, revit_id.revit_id)
-                sheet1.row(i).write(1,excel_id)
-                sheet1.row(i).write(2,'Complete')
-                sheet1.row(i).write(3,str(li.date))
+                if revit_id:
+                    sheet1.row(i).write(0, revit_id.revit_id)
+                    sheet1.row(i).write(1,excel_id)
+                    sheet1.row(i).write(2,'Complete')
+                    sheet1.row(i).write(3,str(li.date))
+                else:
+                    sheet1.row(i).write(1,excel_id)
+                    sheet1.row(i).write(2,'Complete')
+                    sheet1.row(i).write(3,str(li.date))
                 i += 1
 
     output = StringIO.StringIO()

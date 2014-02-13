@@ -1,7 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
-    <h2 class="page-header">Upload Weekly Image -- add this page to "create weekly report"</h2>
+    <h2 class="page-header">Create Weekly Report</h2>
     <div class="col-lg-6">
+    <h3 class="page-header">Upload Tracking Image from BIM</h3>
     <form action="" method="POST" enctype="multipart/form-data" class="form-default">
     {{ form.hidden_tag() }}
     {% call macro.form_field(form.img) %} {% endcall %}

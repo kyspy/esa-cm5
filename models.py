@@ -14,11 +14,13 @@ class Bimimage(db.Model):
     __tablename__ = 'bimimage'
     id = db.Column(db.Integer, primary_key = True)
     img_filename = db.Column(db.String(60))
-    report_date = db.Column(db.String(60), unique=True)
+    report_date = db.Column(db.Date, unique=True)
+    report_type = db.Column(db.String(60))
 
-    def __init__(self, img_filename, report_date):
+    def __init__(self, img_filename, report_date, report_type):
         self.img_filename = img_filename
         self.report_date = report_date
+        self.report_type = report_type
 
 class Area(db.Model):
     __tablename__ = 'area'

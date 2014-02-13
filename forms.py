@@ -4,8 +4,8 @@ from wtforms.validators import Required
 
 class TrackingForm(Form):
     date = DateField('Date (MM/DD/YYYY)', validators=[Required()], format='%m/%d/%Y')
-    station_start = FloatField('Starting Station', validators = [Required()])
-    station_end = FloatField('Ending Station', validators = [Required()])
+    station_start = FloatField('Starting Station (XX.XX)', validators = [Required()])
+    station_end = FloatField('Ending Station (XX.XX)', validators = [Required()])
     quantity = FloatField('Quantity', validators = [Required()])
     area = StringField('Area', validators = [Required()])
     location = StringField('Location', validators = [Required()])
@@ -25,5 +25,14 @@ class LoginForm(Form):
 
 class WeeklyImgForm(Form):
     img = FileField()
+    date = DateField('Date of Report (MM/DD/YYYY)', validators=[Required()], format='%m/%d/%Y')
 
+class WeeklyFieldImgForm(Form):
+    img = FileField()
+    date = DateField('Date of Report (MM/DD/YYYY)', validators=[Required()], format='%m/%d/%Y')
+    caption = StringField('Caption', validators = [Required()])
+
+class WeeklyForm(Form):
+    summary = TextField('Progress Summary')
+    note = TextField('Additional Notes')
 
