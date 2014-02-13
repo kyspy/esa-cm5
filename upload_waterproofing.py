@@ -38,7 +38,8 @@ def UploadWaterproofing():
         supervisor = supervisor)
 
         a = Area.query.filter_by(area = area).first()
-        if a == None:
+        a2 = Area.query.filter_by(location = location).first()
+        if a == None or a2 == None:
             a = Area(area = area, location = location)
             a.tracks.append(t)
             db.session.add(a)

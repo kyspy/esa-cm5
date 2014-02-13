@@ -12,20 +12,14 @@
             {% call macro.form_field(form.station_end) %} {% endcall %}
             </p>
             <p>
-            {% call macro.form_field(form.area) %} {% endcall %}
+            Area: {% call macro.form_field(form.area) %} {% endcall %}
             {% call macro.form_field(form.location) %} {% endcall %}
-            Add Area
             </p>
             <p>
-            {% call macro.form_field(form.shift) %} {% endcall %}
-            {% call macro.form_field(form.start) %} {% endcall %}
-            {% call macro.form_field(form.end) %} {% endcall %}
-            Add Shift
+            Shift: {% call macro.form_field(form.shift) %} {% endcall %}
             </p>
             <p>
-            {% call macro.form_field(form.material) %} {% endcall %}
-            {% call macro.form_field(form.unit) %} {% endcall %}
-            Add Material
+            Material: {% call macro.form_field(form.material) %} {% endcall %}
             </p>
             <p>
             {% call macro.form_field(form.laborer) %} {% endcall %}
@@ -33,6 +27,16 @@
             {% call macro.form_field(form.supervisor) %} {% endcall %}
             </p>
             <p> <input type="submit" value="Submit" class="btn btn-primary"> </p>
+            </form>
+
+            <form method="POST" action="" class="">
+            <input type="submit" value="Add Area" class="btn btn-primary">
+            </form>
+            <form method="POST" action="" class="">
+            <input type="submit" value="Add Shift" class="btn btn-primary">
+            </form>
+            <form method="POST" action="" class="">
+            <input type="submit" value="Add Material" class="btn btn-primary">
             </form>
           </div>
           <p></p>

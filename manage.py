@@ -42,7 +42,7 @@ class Bimimage(db.Model):
 class Area(db.Model):
     __tablename__ = 'area'
     id = db.Column(db.Integer, primary_key = True)
-    area = db.Column(db.String(20), unique=True)
+    area = db.Column(db.String(20))
     location = db.Column(db.String(20))
     tracks = db.relationship('Track', backref='area', lazy='dynamic')
 
@@ -55,6 +55,7 @@ class Area(db.Model):
 
     def __repr__(self):
         return '<Area %r>' % self.area
+
 
 class Shift(db.Model):
     __tablename__ = 'shift'

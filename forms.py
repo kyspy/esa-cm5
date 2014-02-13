@@ -1,23 +1,34 @@
 from flask.ext.wtf import Form
 from wtforms import FloatField, DateField, StringField, IntegerField, TextField, PasswordField, FileField, validators
 from wtforms.validators import Required
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from models import Area, Shift, Material
+
+def getAllAreas():
+    return Area.query.all()
+
+def getAllShifts():
+    return Shift.query.all()
+
+def getAllMaterials():
+    return Material.query.all()
 
 class TrackingForm(Form):
     date = DateField('Date (MM/DD/YYYY)', validators=[Required()], format='%m/%d/%Y')
     station_start = FloatField('Starting Station (XX.XX)', validators = [Required()])
     station_end = FloatField('Ending Station (XX.XX)', validators = [Required()])
     quantity = FloatField('Quantity', validators = [Required()])
-    area = StringField('Area', validators = [Required()])
-    location = StringField('Location', validators = [Required()])
-    shift = StringField('Shift', validators = [Required()])
-    start = IntegerField('Shift Start', validators = [Required()])
-    end = IntegerField('Shift End', validators = [Required()])
-    material = StringField('Material', validators = [Required()])
-    unit = StringField('Material Unit', validators = [Required()])
+    area = QuerySelectField(query_factory=getAllAreas,
+                            get_label='area')
+    location = QuerySelectField(query_factory=getAllAreas,
+                            get_label='location')
+    shift = QuerySelectField(query_factory=getAllShifts,
+                            get_label='shift')
+    material = QuerySelectField(query_factory=getAllMaterials,
+                            get_label='material')
     laborer = IntegerField('Laborer')
     foreman = IntegerField('Foreman')
     supervisor = IntegerField('Supervisor')
-    #look into SelectField for Shift and Area
 
 class LoginForm(Form):
     email = TextField("Email",  [validators.Required("Please enter your email address."), validators.Email("Please enter your email address.")])

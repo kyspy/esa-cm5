@@ -143,6 +143,7 @@ def export_waterproofing():
 @login_required
 def track_waterproofing():
     form = TrackingForm()
+
     if form.validate_on_submit():
         t = Track(timestamp = datetime.utcnow(),
         date = form.date.data,
