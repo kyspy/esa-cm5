@@ -4,6 +4,7 @@ from forms import TrackingForm, LoginForm, WeeklyImgForm, WeeklyForm
 from models import Area, Shift, Material, User, Bimlink, Bimimage, Track, Location
 from datetime import datetime, timedelta
 from flask.ext.login import login_user, login_required, logout_user
+from sqlalchemy import func
 import xlwt
 import StringIO
 import mimetypes
@@ -110,13 +111,24 @@ def report_waterproofing():
     i = Bimimage.query.order_by(Bimimage.id.desc()).first()
     #get image report date - 7 days and query database for entries in that week
     report_date_end = i.report_date + timedelta(days=-7)
+    #temp
     week = Track.query.join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.report_date)).order_by(Area.area)
-    #make dictionary
-    table = {}
-    for w in week:
-        table['area'] = []
+    #get each area and total quanitity for each area
+    all_areas = Area.query.all()
+    all_locations = Location.query.all()
+    all_materials = Material.query.all()
+    sums = {}
+    x = 0
+    for a in all_areas:
+        for l in all_locations:
+            for m in all_materials:
+                x += 1
+                total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.report_date)).filter(Material.material == m.material).filter(Area.area == a.area).filter(Location.location == l.location)
+                for t in total.all():
+                    sums[x] = [a.area, l.location, m.material, t.total]
 
-    return render_template('report_waterproofing.html', i=i, week=week)
+    total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.report_date))
+    return render_template('report_waterproofing.html', i=i, week=week, total = total, sums = sums)
 
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])

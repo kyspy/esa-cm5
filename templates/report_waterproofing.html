@@ -33,11 +33,28 @@
               </tbody>
             </table>
           </div>
-          <p>Total:</p>
+          <p>Total Installed:
+          {% for t in total %}
+          {{t.total}}
+            {% endfor %}
+
+{%- for key, value in sums.items()%}
+  {{ key }}, {{value}}
+
+{%- endfor %}
+
+          </p>
        </div>
       </div>
 
-
-    <h3>Form to see older reports here</h3>
+            <div class="col-md-5"
+            <form method="POST" action="" class="form-control">
+            <div class="input-group">
+            <span class="input-group-addon">Previous Reports by Week:</span>
+            <input type="text" class="form-control" placeholder="xx/xx/xx - xx/xx/xx">
+            </div>
+            <input type="submit" value="Submit" class="btn btn-primary">
+            </form>
+            </div>
 
 {% endblock content %}
