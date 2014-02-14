@@ -110,13 +110,13 @@ def report_waterproofing():
     i = Bimimage.query.order_by(Bimimage.id.desc()).first()
     #get image report date - 7 days and query database for entries in that week
     report_date_end = i.report_date + timedelta(days=-7)
-    week = Track.query.join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.report_date)).order_by(area.area)
+    week = Track.query.join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.report_date)).order_by(Area.area)
     #make dictionary
     table = {}
     for w in week:
         table['area'] = []
 
-    return render_template('report_waterproofing.html', i=i, table=table)
+    return render_template('report_waterproofing.html', i=i, week=week)
 
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])
@@ -147,17 +147,8 @@ def track_waterproofing():
         foreman = form.foreman.data,
         supervisor = form.supervisor.data)
 
-        a = Area.query.filter_by(area = form.area.data).first()
-        if a == None:
-            a = Area(area = form.area.data)
-            a.tracks.append(t)
-            db.session.add(a)
-            db.session.commit()
-        else:
-            a.tracks.append(t)
-            db.session.commit()
-
-        l = Location.query.filter_by(location = form.location.data).first()
+        form_location = form.location.data
+        l = Location.query.filter_by(location = form_location.location).first()
         if l == None:
             l = Location(location = form.location.data)
             l.tracks.append(t)
@@ -167,7 +158,19 @@ def track_waterproofing():
             l.tracks.append(t)
             db.session.commit()
 
-        s = Shift.query.filter_by(shift = form.shift.data).first()
+        form_area = form.area.data
+        a = Area.query.filter(Area.area == form_area.area).first()
+        if a == None:
+            a = Area(area = form.area.data)
+            a.tracks.append(t)
+            db.session.add(a)
+            db.session.commit()
+        else:
+            a.tracks.append(t)
+            db.session.commit()
+
+        form_shift = form.shift.data
+        s = Shift.query.filter(Shift.shift == form_shift.shift).first()
         if s == None:
             s = Shift(shift = form.shift.data, start = form.start.data, end = form.end.data)
             s.tracks.append(t)
@@ -177,7 +180,8 @@ def track_waterproofing():
             s.tracks.append(t)
             db.session.commit()
 
-        m = Material.query.filter_by(material = form.material.data).first()
+        form_material = form.material.data
+        m = Material.query.filter_by(material = form_material.material).first()
         if m == None:
             m = Material(material = form.material.data, unit = form.unit.data)
             m.tracks.append(t)

@@ -1,9 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
-
-          <h2 class="page-header theme-showcase">Track: Waterproofing</h2>
-
-          <div class="container">
+        <h2 class="page-header">Track: Waterproofing</h2>
+        <div class="container">
             <form method="POST" action="" class="form-inline">
             {{ form.hidden_tag() }}
             <p>
@@ -38,21 +36,6 @@
             </p>
             <p> <input type="submit" value="Submit" class="btn btn-primary"> </p>
             </form>
-            </div>
-            <div>
-            <form method="POST" class="navbar-form navbar-left" >
-            <input type="submit" value="Add Area" class="btn btn-sm btn-default">
-            </form>
-            <form method="POST" action="" class="navbar-form navbar-left" >
-            <input type="submit" value="Add Shift" class="btn btn-sm btn-default">
-            </form>
-            <form method="POST" action="" class="navbar-form navbar-left" >
-            <input type="submit" value="Add Material" class="btn btn-sm btn-default">
-            </form>
-            <form method="POST" action="/delete_entry" name="submit" class="navbar-form navbar-left" >
-            <input type="submit" value="Delete Most Recent Entry" class="btn btn-sm btn-default">
-            </form>
-            </div>
 
           <div class="table-responsive">
             <table class="table table-striped">
@@ -91,6 +74,21 @@
                 {% endfor %}
               </tbody>
             </table>
+          </div>
+
+            <form method="POST" class="navbar-form navbar-left" >
+            <input type="submit" value="Add Area" class="btn btn-sm btn-primary">
+            </form>
+            <form method="POST" action="" class="navbar-form navbar-left" >
+            <input type="submit" value="Add Shift" class="btn btn-sm btn-primary">
+            </form>
+            <form method="POST" action="" class="navbar-form navbar-left" >
+            <input type="submit" value="Add Material" class="btn btn-sm btn-primary">
+            </form>
+            <form method="POST" action="/delete_entry" name="submit" class="navbar-form navbar-left" >
+            <input type="submit" value="Delete Most Recent Entry" class="btn btn-sm btn-primary">
+            </form>
+
           </div>
 
 {% endblock content %}

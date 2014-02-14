@@ -28,7 +28,7 @@ class Area(db.Model):
     area = db.Column(db.String(20), unique = True)
     tracks = db.relationship('Track', backref='area', lazy='dynamic')
 
-    def __init__(self, area,):
+    def __init__(self, area):
         self.area = area
 
     def get_id(self):
