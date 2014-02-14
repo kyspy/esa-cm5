@@ -23,7 +23,7 @@ class TrackingForm(Form):
     quantity = FloatField('Quantity', validators = [Required()])
     area = QuerySelectField(query_factory=getAllAreas,
                             get_label='area')
-    location = QuerySelectField(query_factory=getAllLocations,
+    location = QuerySelectField('Location', query_factory=getAllLocations,
                             get_label='location')
     shift = QuerySelectField(query_factory=getAllShifts,
                             get_label='shift')
