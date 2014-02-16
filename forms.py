@@ -46,3 +46,15 @@ class WeeklyForm(Form):
     summary = TextField('Progress Summary')
     note = TextField('Additional Notes')
 
+class AddAreaForm(Form):
+    area = StringField('Area', validators = [Required()])
+    location = StringField('Location', validators = [Required()])
+
+class AddShiftForm(Form):
+    shift = StringField('Shift ID', validators = [Required()])
+    start = IntegerField('Shift Start (for example 700)', validators = [Required()])
+    end = IntegerField('Shift End (for example 1600)', validators = [Required()])
+
+class AddMaterialForm(Form):
+    material = StringField('Material', validators = [Required()])
+    unit =  StringField('Unit', validators = [Required()])

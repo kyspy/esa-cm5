@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h2 class="page-header">Add Shift</h2>
+    <div class="col-lg-6">
+    <form action="" method="POST" enctype="multipart/form-data" class="form-default">
+    {{ form.hidden_tag() }}
+    {% call macro.form_field(form.shift) %} {% endcall %}
+    {% call macro.form_field(form.start) %} {% endcall %}
+    {% call macro.form_field(form.end) %} {% endcall %}
+    <input type="submit" value="Submit" class="btn btn-primary"> </p>
+    </form>
+    </div>
+
+{% endblock content %}

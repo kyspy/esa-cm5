@@ -15,35 +15,39 @@
                   <th>Location</th>
                   <th>Material</th>
                   <th>Unit</th>
-                  <th>Percent Complete</th>
                   <th>Quantity Installed</th>
                 </tr>
               </thead>
               <tbody>
-               {% for w in week %}
+               {%- for key, value in sums.items()%}
+               {% if value[3] %}
                 <tr>
-                    <td>{{w.area.area}}</td>
-                    <td>{{w.location.location}}</td>
-                    <td>{{w.material.material}}</td>
+                    <td>{{value[0]}}</td>
+                    <td>{{value[1]}}</td>
+                    <td>{{value[2]}}</td>
                     <td>LF</td>
-                    <td>Percent</td>
-                  <td>{{w.quantity}}</td>
+                  <td>{{value[3]}}</td>
                 </tr>
+                {% endif %}
                 {% endfor %}
+                <tr>
+                    <td><b>Total Installed:</b></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+
+                    </td>
+                    <td><b>
+                         {% for t in total %}
+                            {{t.total}}
+                        {% endfor %}
+                        </b>
+                    </td>
+                    </td>
+                </tr>
               </tbody>
             </table>
           </div>
-          <p>Total Installed:
-          {% for t in total %}
-          {{t.total}}
-            {% endfor %}
-
-{%- for key, value in sums.items()%}
-  {{ key }}, {{value}}
-
-{%- endfor %}
-
-          </p>
        </div>
       </div>
 

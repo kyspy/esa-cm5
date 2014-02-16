@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, Response, request
 from cm5_app import app, db, login_manager
-from forms import TrackingForm, LoginForm, WeeklyImgForm, WeeklyForm
+from forms import TrackingForm, LoginForm, WeeklyImgForm, WeeklyForm, AddAreaForm, AddShiftForm, AddMaterialForm
 from models import Area, Shift, Material, User, Bimlink, Bimimage, Track, Location
 from datetime import datetime, timedelta
 from flask.ext.login import login_user, login_required, logout_user
@@ -56,31 +56,40 @@ def test_bimlink():
     test = Bimlink.query.order_by(Bimlink.excel_id)
     return render_template('test_bimlink.html', test=test)
 
-@app.route("/bim_upload", methods=["GET", "POST"])
+@app.route("/add_area", methods=["GET", "POST"])
 @login_required
-def bim_upload():
-    #figure out how to resize the image
-    form = WeeklyImgForm()
-    form2 = WeeklyForm()
-    #upload BIM Image
-    if form.validate_on_submit():
-        file = form.img.data
-        if file and allowed_file(file.filename):
-            exists = Bimimage.query.filter_by(report_date = form.date.data).first()
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            if exists:
-                exists.img_filename = file.filename
-                db.session.commit()
-                return redirect(url_for('report_waterproofing'))
-            else:
-                f = Bimimage(img_filename = file.filename, report_date = form.date.data)
-                db.session.add(f)
-                db.session.commit()
-                return redirect(url_for('report_waterproofing'))
-    #Upload other data
+def add_area():
+        form = AddAreaForm()
+        if form.validate_on_submit():
+            a = Area(area = form.area.data)
+            db.session.add(a)
+            l = Location(location = form.location.data)
+            db.session.add(l)
+            db.session.commit()
+            return redirect(url_for('track_waterproofing'))
+        return render_template('add_area.html', form=form)
 
-    return render_template('bim_upload.html', form=form)
+@app.route("/add_shift", methods=["GET", "POST"])
+@login_required
+def add_shift():
+        form = AddShiftForm()
+        if form.validate_on_submit():
+            s = Shift(shift = form.shift.data, start = form.start.data, end = form.end.data)
+            db.session.add(s)
+            db.session.commit()
+            return redirect(url_for('track_waterproofing'))
+        return render_template('add_shift.html', form=form)
+
+@app.route("/add_material", methods=["GET", "POST"])
+@login_required
+def add_material():
+        form = AddMaterialForm()
+        if form.validate_on_submit():
+            m = Material(material = form.material.data, unit = form.unit.data)
+            db.session.add(m)
+            db.session.commit()
+            return redirect(url_for('track_waterproofing'))
+        return render_template('add_material.html', form=form)
 
 @app.route("/create_waterproofing", methods=["GET", "POST"])
 @login_required
@@ -102,7 +111,7 @@ def create_waterproofing():
                 db.session.add(f)
                 db.session.commit()
                 return redirect(url_for('report_waterproofing'))
-    return render_template('bim_upload.html', form=form)
+    return render_template('create_waterproofing.html', form=form)
 
 @app.route("/report_waterproofing", methods=["GET", "POST"])
 @login_required
@@ -111,8 +120,6 @@ def report_waterproofing():
     i = Bimimage.query.order_by(Bimimage.id.desc()).first()
     #get image report date - 7 days and query database for entries in that week
     report_date_end = i.report_date + timedelta(days=-7)
-    #temp
-    week = Track.query.join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.report_date)).order_by(Area.area)
     #get each area and total quanitity for each area
     all_areas = Area.query.all()
     all_locations = Location.query.all()
@@ -128,7 +135,7 @@ def report_waterproofing():
                     sums[x] = [a.area, l.location, m.material, t.total]
 
     total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.report_date))
-    return render_template('report_waterproofing.html', i=i, week=week, total = total, sums = sums)
+    return render_template('report_waterproofing.html', i=i, total = total, sums = sums)
 
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])
@@ -324,10 +331,12 @@ def download_bim_excel():
                     sheet1.row(i).write(1,excel_id)
                     sheet1.row(i).write(2,'Complete')
                     sheet1.row(i).write(3,str(li.date))
+                    sheet1.row(i).write(4,li.material.material)
                 else:
                     sheet1.row(i).write(1,excel_id)
                     sheet1.row(i).write(2,'Complete')
                     sheet1.row(i).write(3,str(li.date))
+                    sheet1.row(i).write(4,li.material.material)
                 i += 1
 
     output = StringIO.StringIO()
