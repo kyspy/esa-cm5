@@ -75,21 +75,92 @@
               </tbody>
             </table>
           </div>
+          <div class="row">
+            <div class="col-lg-3">
+            <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#add_area_form">Add Area</button>
 
-            <form method="POST" action="/add_area" class="navbar-form navbar-left" >
-            <input type="submit" value="Add Area" class="btn btn-sm btn-primary">
-            </form>
-            <form method="POST" action="/add_shift" class="navbar-form navbar-left" >
-            <input type="submit" value="Add Shift" class="btn btn-sm btn-primary">
-            </form>
-            <form method="POST" action="/add_material" class="navbar-form navbar-left" >
-            <input type="submit" value="Add Material" class="btn btn-sm btn-primary">
-            </form>
-            <form method="POST" action="/delete_entry" name="submit" class="navbar-form navbar-left" >
+            <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#add_shift_form">Add Shift</button>
+
+            <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#add_material_form">Add Material</button>
+            </div>
+            <div class="col-lg-2">
+            <form method="POST" action="/delete_entry" name="submit" class="form-inline" >
             <input type="submit" value="Delete Most Recent Entry" class="btn btn-sm btn-primary">
             </form>
+            </div>
 
-          </div>
+    <div class="modal fade" id="add_area_form">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Add new area and location</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                <div class="col-lg-4">
+                <form action="/add_area" method="POST" enctype="multipart/form-data" class="form-default">
+                 {{ form.hidden_tag() }}
+                 {% call macro.form_field(area_form.area) %} {% endcall %}
+                 {% call macro.form_field(area_form.location) %} {% endcall %}
+                <input type="submit" value="Submit" class="btn btn-primary"> </p>
+                </form>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div class="modal fade" id="add_shift_form">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Add new shift</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                <div class="col-lg-4">
+                <form action="/add_shift" method="POST" enctype="multipart/form-data" class="form-default">
+                    {{ form.hidden_tag() }}
+                    {% call macro.form_field(shift_form.shift) %} {% endcall %}
+                    {% call macro.form_field(shift_form.start) %} {% endcall %}
+                    {% call macro.form_field(shift_form.end) %} {% endcall %}
+                    <input type="submit" value="Submit" class="btn btn-primary"> </p>
+                </form>
+                </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div class="modal fade" id="add_material_form">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Add new shift</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                <div class="col-lg-4">
+                <form action="/add_material" method="POST" enctype="multipart/form-data" class="form-default">
+                {{ form.hidden_tag() }}
+                {% call macro.form_field(material_form.material) %} {% endcall %}
+                {% call macro.form_field(material_form.unit) %} {% endcall %}
+                <input type="submit" value="Submit" class="btn btn-primary"> </p>
+                </form>
+                </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
 
 {% endblock content %}
+
 

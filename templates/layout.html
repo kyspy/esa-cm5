@@ -46,11 +46,17 @@
           </ul>
         </li>
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Export<b class="caret"></b></a>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Export Excel<b class="caret"></b></a>
           <ul class="dropdown-menu">
-            <li><a href="{{ url_for('export_waterproofing') }}">Waterproofing</a></li>
-            <li><a href="#">Rebar</a></li>
-            <li><a href="#">Concrete</a></li>
+            <li class="dropdown-header">Export for BIM Link</li>
+            <li><a href="{{ url_for('download_bim_excel') }}">Waterproofing BIM Link</a></li>
+            <li><a href="#">Rebar BIM Link</a></li>
+            <li><a href="#">Concrete BIM Link</a></li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Export All Data</li>
+            <li><a href="{{ url_for('download_all_excel') }}">Waterproofing Data</a></li>
+            <li><a href="#">Rebar Data</a></li>
+            <li><a href="#">Concrete Data</a></li>
           </ul>
         </li>
         <li><a href="{{ url_for('logout') }}">Logout</a></li>
@@ -73,5 +79,6 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="../../static/js/bootstrap.min.js"></script>
+
   </body>
 </html>

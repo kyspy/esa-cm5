@@ -59,15 +59,14 @@ def test_bimlink():
 @app.route("/add_area", methods=["GET", "POST"])
 @login_required
 def add_area():
-        form = AddAreaForm()
-        if form.validate_on_submit():
-            a = Area(area = form.area.data)
-            db.session.add(a)
-            l = Location(location = form.location.data)
-            db.session.add(l)
-            db.session.commit()
-            return redirect(url_for('track_waterproofing'))
-        return render_template('add_area.html', form=form)
+    form = AddAreaForm()
+    if form.validate_on_submit():
+        a = Area(area = form.area.data)
+        db.session.add(a)
+        l = Location(location = form.location.data)
+        db.session.add(l)
+        db.session.commit()
+        return redirect(url_for('track_waterproofing'))
 
 @app.route("/add_shift", methods=["GET", "POST"])
 @login_required
@@ -78,7 +77,6 @@ def add_shift():
             db.session.add(s)
             db.session.commit()
             return redirect(url_for('track_waterproofing'))
-        return render_template('add_shift.html', form=form)
 
 @app.route("/add_material", methods=["GET", "POST"])
 @login_required
@@ -89,7 +87,6 @@ def add_material():
             db.session.add(m)
             db.session.commit()
             return redirect(url_for('track_waterproofing'))
-        return render_template('add_material.html', form=form)
 
 @app.route("/create_waterproofing", methods=["GET", "POST"])
 @login_required
@@ -133,6 +130,8 @@ def report_waterproofing():
                 total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.report_date)).filter(Material.material == m.material).filter(Area.area == a.area).filter(Location.location == l.location)
                 for t in total.all():
                     sums[x] = [a.area, l.location, m.material, t.total]
+    #make graph with cairoplot
+    # http://flask.pocoo.org/mailinglist/archive/2012/3/28/generating-dynamic-images-on-the-fly/#b8287034c1dddb6765fdbbb14b4e4fec
 
     total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.report_date))
     return render_template('report_waterproofing.html', i=i, total = total, sums = sums)
@@ -143,18 +142,13 @@ def report_waterproofing():
 def index():
     return render_template('dashboard.html')
 
-@app.route("/export_waterproofing", methods=['GET', 'POST'])
-@login_required
-def export_waterproofing():
-    if request.method == 'POST':
-        return render_template('export_waterproofing.html')
-    elif request.method == 'GET':
-        return render_template('export_waterproofing.html')
-
 @app.route('/track_waterproofing', methods=['GET', 'POST'])
 @login_required
 def track_waterproofing():
     form = TrackingForm()
+    area_form = AddAreaForm()
+    shift_form = AddShiftForm()
+    material_form = AddMaterialForm()
 
     if form.validate_on_submit():
         t = Track(timestamp = datetime.utcnow(),
@@ -188,17 +182,6 @@ def track_waterproofing():
             a.tracks.append(t)
             db.session.commit()
 
-        form_shift = form.shift.data
-        s = Shift.query.filter(Shift.shift == form_shift.shift).first()
-        if s == None:
-            s = Shift(shift = form.shift.data, start = form.start.data, end = form.end.data)
-            s.tracks.append(t)
-            db.session.add(s)
-            db.session.commit()
-        else:
-            s.tracks.append(t)
-            db.session.commit()
-
         form_material = form.material.data
         m = Material.query.filter_by(material = form_material.material).first()
         if m == None:
@@ -215,7 +198,7 @@ def track_waterproofing():
         return redirect(url_for('track_waterproofing'))
 
     lines = Track.query.join(Area).join(Shift).join(Material).join(Location).filter(Area.id == Track.area_id).filter(Shift.id == Track.shift_id).filter(Material.id == Track.material_id).filter(Location.id == Track.location_id).order_by(Track.id.desc()).slice(0,5)
-    return render_template('track_waterproofing.html', form=form, lines=lines)
+    return render_template('track_waterproofing.html', form=form, lines=lines, area_form=area_form, shift_form=shift_form, material_form=material_form)
 
 @app.route('/delete_entry', methods=['GET', 'POST'])
 @login_required

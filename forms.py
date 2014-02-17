@@ -47,8 +47,8 @@ class WeeklyForm(Form):
     note = TextField('Additional Notes')
 
 class AddAreaForm(Form):
-    area = StringField('Area', validators = [Required()])
-    location = StringField('Location', validators = [Required()])
+    area = StringField('Area (for example East Cavern)', validators = [Required()])
+    location = StringField('Location (for example East Wall)', validators = [Required()])
 
 class AddShiftForm(Form):
     shift = StringField('Shift ID', validators = [Required()])
@@ -56,5 +56,5 @@ class AddShiftForm(Form):
     end = IntegerField('Shift End (for example 1600)', validators = [Required()])
 
 class AddMaterialForm(Form):
-    material = StringField('Material', validators = [Required()])
-    unit =  StringField('Unit', validators = [Required()])
+    material = StringField('Material (for example Geodrain)', validators = [Required()])
+    unit =  StringField('Unit (for example Roll)', validators = [Required()])
