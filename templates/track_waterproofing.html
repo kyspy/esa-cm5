@@ -1,7 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
+<div class="container">
         <h2 class="page-header">Track: Waterproofing</h2>
-        <div class="container">
+
             <form method="POST" action="" class="form-inline">
             {{ form.hidden_tag() }}
             <p>
@@ -88,6 +89,9 @@
             <input type="submit" value="Delete Most Recent Entry" class="btn btn-sm btn-primary">
             </form>
             </div>
+          </div>
+          <p></p>
+         </div>
 
     <div class="modal fade" id="add_area_form">
     <div class="modal-dialog">
@@ -142,11 +146,11 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Add new shift</h4>
+                <h4 class="modal-title">Add new material</h4>
             </div>
             <div class="modal-body">
                 <div class="container">
-                <div class="col-lg-4">
+                <div class="col-lg-5">
                 <form action="/add_material" method="POST" enctype="multipart/form-data" class="form-default">
                 {{ form.hidden_tag() }}
                 {% call macro.form_field(material_form.material) %} {% endcall %}
@@ -160,6 +164,7 @@
         </div>
     </div>
     </div>
+
 
 {% endblock content %}
 

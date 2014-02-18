@@ -6,6 +6,7 @@ from datetime import datetime
 def UploadWaterproofing():
     Track.query.delete()
     Area.query.delete()
+    Location.query.delete()
     Material.query.delete()
     Shift.query.delete()
 
