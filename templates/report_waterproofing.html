@@ -1,13 +1,26 @@
 {% extends "layout.html" %}
+
+{% block navbar %}
+
+    <form class="navbar-form navbar-left" role="form" method="POST" action="">
+        <div class="form-group">
+            <input type="text" class="form-control" placeholder="Previous Report">
+        </div>
+        <input type="submit" value="Submit" class="btn btn-default">
+        </form>
+
+{% endblock navbar %}
+
 {% block content %}
-    <h2> CM005 - Manhattan Structures South</h2>
-    <h3 class="page-header">Waterproofing Installation Progress As of {{i.report_date }}</h3>
+    <h2> Manhattan Structures South - Waterproofing Installation Progress As of {{i.report_date }}</h2>
     <div class="row">
         <div class="col-lg-12">
         <figure>
-            <embed type="image/svg+xml" src="/test.svg" />
+            <iframe type="image/svg+xml" src="{{ url_for('svg') }}" height=400 width=100% scrolling="no" frameBorder=0></iframe>
         </figure>
         </div>
+    </div>
+    <div class="row">
         <div class="col-lg-6">
           <img src="{{ '/static/uploads/' + i.img_filename }}" width=100% />
         </div>
@@ -55,15 +68,5 @@
           </div>
        </div>
       </div>
-
-            <div class="col-md-5"
-            <form method="POST" action="" class="form-control">
-            <div class="input-group">
-            <span class="input-group-addon">Previous Reports by Week:</span>
-            <input type="text" class="form-control" placeholder="xx/xx/xx - xx/xx/xx">
-            </div>
-            <input type="submit" value="Submit" class="btn btn-primary">
-            </form>
-            </div>
 
 {% endblock content %}

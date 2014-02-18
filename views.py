@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, Response, request, make_response
+from flask import render_template, redirect, url_for, flash, Response, make_response
 from cm5_app import app, db, login_manager
 from forms import TrackingForm, LoginForm, WeeklyImgForm, WeeklyForm, AddAreaForm, AddShiftForm, AddMaterialForm
 from models import Area, Shift, Material, User, Bimlink, Bimimage, Track, Location
@@ -27,8 +27,8 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
-@app.route("/graph")
-def graph():
+@app.route("/svg", methods=["GET", "POST"])
+def svg():
     custom_style = Style(
         background='transparent',
         plot_background='transparent',
@@ -42,18 +42,16 @@ def graph():
         'rgb(12,55,149)', 'rgb(117,38,65)', 'rgb(228,127,0)', 'rgb(159,170,0)',
         'rgb(149,12,12)'))
 
-    line_chart = pygal.Line(style=custom_style)
-    line_chart.title = 'Browser usage evolution (in %)'
-    line_chart.y_title = 'LF Installed'
-    line_chart.x_title = 'Date'
+    line_chart = pygal.Line(style=custom_style, label_font_size=14, legend_font_size=14, width=1200, height=400, show_dots=False)
+    line_chart.title = 'East Bound Waterproofing (Pits & Walls) Progress Curve'
+    line_chart.y_title = '% Complete'
     line_chart.x_labels = map(str, range(2002, 2013))
-    line_chart.add('Firefox', [None, None, 0, 16.6,   25,   31, 36.4, 45.5, 46.3, 42.8, 37.1])
-    line_chart.add('Chrome',  [None, None, None, None, None, None,    0,  3.9, 10.8, 23.8, 35.3])
-    line_chart.add('IE',      [85.8, 84.6, 84.7, 74.5,   66, 58.6, 54.7, 44.8, 36.2, 26.6, 20.1])
-    line_chart.add('Others',  [14.2, 15.4, 15.3,  8.9,    9, 10.4,  8.9,  5.8,  6.7,  6.8,  7.5])
-    resp = make_response(line_chart.render())
+    line_chart.add('Baseline-Early', [None, None, 0, 16.6,   25,   31, 36.4, 45.5, 46.3, 42.8, 37.1])
+    line_chart.add('Baseline-Late',  [None, None, None, None, None, None,    0,  3.9, 10.8, 23.8, 35.3])
+    line_chart.add('Actual',      [85.8, 84.6, 84.7, 74.5,   66, 58.6, 54.7, 44.8, 36.2, 26.6, 20.1])
+    svg = line_chart.render()
 
-    return resp
+    return svg
 
 @login_manager.user_loader
 def load_user(email):
@@ -160,8 +158,6 @@ def report_waterproofing():
                 total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.report_date)).filter(Material.material == m.material).filter(Area.area == a.area).filter(Location.location == l.location)
                 for t in total.all():
                     sums[x] = [a.area, l.location, m.material, t.total]
-    #make graph
-
 
     total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.report_date))
     return render_template('report_waterproofing.html', i=i, total = total, sums = sums)

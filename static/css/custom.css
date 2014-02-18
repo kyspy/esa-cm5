@@ -1,0 +1,17 @@
+.restricted {
+    overflow-y: hidden;
+    overflow-x: hidden;
+    overflow: hidden;
+    }
+
+embed {
+    overflow-y: hidden;
+    overflow-x: hidden;
+    overflow: hidden;
+    }
+
+figure {
+    overflow-y: hidden;
+    overflow-x: hidden;
+    overflow: hidden;
+    }
