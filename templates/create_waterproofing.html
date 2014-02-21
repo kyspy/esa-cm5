@@ -1,15 +1,39 @@
 {% extends "layout.html" %}
+{% block head %}
+    <link rel="stylesheet" href="../../static/css/bootstrap.css">
+    <link rel="stylesheet" href="../../static/css/bootstrap-theme.css">
+    <link rel="stylesheet" href="../../static/css/custom.css">
+{% endblock head %}
+
+{% block navbar %}
+
+ <form class="navbar-form navbar-left" method="POST" role="form">
+    <div class="form-group">
+    {{ form.hidden_tag() }}
+    {% call macro.form_field(form.edit_date) %} {% endcall %}
+    </div>
+    <input type="submit" name="action" value="Edit" class="btn btn-default">
+    </form>
+
+{% endblock navbar %}
+
 {% block content %}
-    <h2 class="page-header">Create Weekly Report</h2>
+
+<div class="row">
+    <h2 class="page-header">{{ action }} {{ data_type }}</h2>
     <div class="col-lg-6">
-    <h3 class="page-header">Upload Tracking Image from BIM</h3>
     <form action="" method="POST" enctype="multipart/form-data" class="form-default">
     {{ form.hidden_tag() }}
-    {% call macro.form_field(form.img) %} {% endcall %}
     {% call macro.form_field(form.date) %} {% endcall %}
-    <input type="submit" value="Upload" class="btn btn-primary"> </p>
+    Tracking Image from BIM: {% call macro.form_field(form.bimimg) %} {% endcall %}
+    Progress Image from Site: {% call macro.form_field(form.siteimg) %} {% endcall %}
+    {% call macro.form_field(form.site_caption) %} {% endcall %}
+    {% call macro.form_field(form.summary) %} {% endcall %}
+    {% call macro.form_field(form.note) %} {% endcall %}
+    <input type="submit" name="action" value="Upload" class="btn btn-primary">
     </form>
     </div>
+</div>
 
 {% endblock content %}
 

@@ -1,7 +1,7 @@
-from flask import render_template, redirect, url_for, flash, Response, make_response
+from flask import render_template, redirect, url_for, flash, Response, request
 from cm5_app import app, db, login_manager
-from forms import TrackingForm, LoginForm, WeeklyImgForm, WeeklyForm, AddAreaForm, AddShiftForm, AddMaterialForm
-from models import Area, Shift, Material, User, Bimlink, Bimimage, Track, Location
+from forms import TrackingForm, LoginForm, ReportForm, AddAreaForm, AddShiftForm, AddMaterialForm
+from models import Area, Shift, Material, User, Bimlink, Report, Track, Location
 from datetime import datetime, timedelta
 from flask.ext.login import login_user, login_required, logout_user
 from sqlalchemy import func
@@ -69,23 +69,18 @@ def login():
     return render_template('login.html', form=form)
 
 @app.route("/logout")
-@login_required
+#@login_required
 def logout():
     logout_user()
     return redirect(url_for('index'))
 
 @app.route("/3d")
-@login_required
+#@login_required
 def threed():
     return render_template('3d.html')
 
-@app.route("/test_bimlink")
-def test_bimlink():
-    test = Bimlink.query.order_by(Bimlink.excel_id)
-    return render_template('test_bimlink.html', test=test)
-
 @app.route("/add_area", methods=["GET", "POST"])
-@login_required
+#@login_required
 def add_area():
     form = AddAreaForm()
     if form.validate_on_submit():
@@ -97,7 +92,7 @@ def add_area():
         return redirect(url_for('track_waterproofing'))
 
 @app.route("/add_shift", methods=["GET", "POST"])
-@login_required
+#@login_required
 def add_shift():
         form = AddShiftForm()
         if form.validate_on_submit():
@@ -107,7 +102,7 @@ def add_shift():
             return redirect(url_for('track_waterproofing'))
 
 @app.route("/add_material", methods=["GET", "POST"])
-@login_required
+#@login_required
 def add_material():
         form = AddMaterialForm()
         if form.validate_on_submit():
@@ -117,34 +112,72 @@ def add_material():
             return redirect(url_for('track_waterproofing'))
 
 @app.route("/create_waterproofing", methods=["GET", "POST"])
-@login_required
+#@login_required
 def create_waterproofing():
     #figure out how to resize the image
-    form = WeeklyImgForm()
-    if form.validate_on_submit():
-        file = form.img.data
-        if file and allowed_file(file.filename):
-            exists = Bimimage.query.filter_by(report_date = form.date.data).first()
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            if exists:
-                exists.img_filename = file.filename
-                db.session.commit()
-                return redirect(url_for('report_waterproofing'))
-            else:
-                f = Bimimage(img_filename = file.filename, report_date = form.date.data, report_type = "Waterproofing")
-                db.session.add(f)
-                db.session.commit()
-                return redirect(url_for('report_waterproofing'))
-    return render_template('create_waterproofing.html', form=form)
+    form = ReportForm()
+    if request.method == 'POST':
+        if request.form['action'] == 'Upload':
+            bim_file = form.bimimg.data
+            if bim_file and allowed_file(bim_file.filename):
+                bim_filename = secure_filename(bim_file.filename)
+                bim_file.save(os.path.join(app.config['UPLOAD_FOLDER'], bim_filename))
+            site_file = form.siteimg.data
+            if site_file and allowed_file(site_file.filename):
+                site_filename = secure_filename(site_file.filename)
+                site_file.save(os.path.join(app.config['UPLOAD_FOLDER'], site_filename))
+            f = Report(bimimg_filename = bim_file.filename, siteimg_filename = site_file.filename, site_caption = form.site_caption.data, date = form.date.data, note = form.note.data, summary = form.summary.data)
+            db.session.add(f)
+            db.session.commit()
+            return redirect(url_for('index'))
+        elif request.form['action'] == 'Edit':
+            id_object = form.edit_date.data
+            r = Report.query.get(id_object.id)
+            id = r.id
+            return redirect(url_for('edit_waterproofing', id=id))
+    elif request.method == 'GET':
+        return render_template('create_waterproofing.html', form=form, data_type="Report", action="Add a")
+
+@app.route("/create_waterproofing/<id>/", methods=["GET", "POST"])
+#@login_required
+def edit_waterproofing(id):
+    report = Report.query.get(id)
+    form = ReportForm(obj=report)
+    if request.method == 'POST':
+        if request.form['action'] == 'Upload':
+            #change it to overwrite the exisiting entry intead of making a new one
+            form.populate_obj(report)
+            bim_file = form.bimimg.data
+            if bim_file and allowed_file(bim_file.filename):
+                bim_filename = secure_filename(bim_file.filename)
+                bim_file.save(os.path.join(app.config['UPLOAD_FOLDER'], bim_filename))
+            site_file = form.siteimg.data
+            if site_file and allowed_file(site_file.filename):
+                site_filename = secure_filename(site_file.filename)
+                site_file.save(os.path.join(app.config['UPLOAD_FOLDER'], site_filename))
+            report.bimimg_filename = bim_file.filename
+            report.siteimg_filename = site_file.filename
+            report.site_caption = form.site_caption.data
+            report.date = form.date.data
+            report.note = form.note.data
+            report.summary = form.summary.data
+            db.session.commit()
+            return redirect(url_for('index'))
+        elif request.form['action'] == 'Edit':
+            id_object = form.edit_date.data
+            r = Report.query.get(id_object.id)
+            id = r.id
+            return redirect(url_for('edit_waterproofing', id=id))
+    elif request.method == 'GET':
+        return render_template('create_waterproofing.html', form=form, data_type=report.date, action="Edit")
 
 @app.route("/report_waterproofing", methods=["GET", "POST"])
-@login_required
+#@login_required
 def report_waterproofing():
     #get image
-    i = Bimimage.query.order_by(Bimimage.id.desc()).first()
+    i = Report.query.order_by(Report.id.desc()).first()
     #get image report date - 7 days and query database for entries in that week
-    report_date_end = i.report_date + timedelta(days=-7)
+    report_date_end = i.date + timedelta(days=-7)
     #get each area and total quanitity for each area
     all_areas = Area.query.all()
     all_locations = Location.query.all()
@@ -155,21 +188,21 @@ def report_waterproofing():
         for l in all_locations:
             for m in all_materials:
                 x += 1
-                total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.report_date)).filter(Material.material == m.material).filter(Area.area == a.area).filter(Location.location == l.location)
+                total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.date)).filter(Material.material == m.material).filter(Area.area == a.area).filter(Location.location == l.location)
                 for t in total.all():
                     sums[x] = [a.area, l.location, m.material, t.total]
 
-    total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.report_date))
+    total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.date))
     return render_template('report_waterproofing.html', i=i, total = total, sums = sums)
 
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def index():
     return render_template('dashboard.html')
 
 @app.route('/track_waterproofing', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def track_waterproofing():
     form = TrackingForm()
     area_form = AddAreaForm()
@@ -227,7 +260,7 @@ def track_waterproofing():
     return render_template('track_waterproofing.html', form=form, lines=lines, area_form=area_form, shift_form=shift_form, material_form=material_form)
 
 @app.route('/delete_entry', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def delete_entry():
     entry = Track.query.order_by(Track.id.desc()).first()
     db.session.delete(entry)
@@ -235,6 +268,7 @@ def delete_entry():
     return redirect(url_for('track_waterproofing'))
 
 @app.route('/download_all_excel', methods=['GET', 'POST'])
+#@login_required
 def download_all_excel():
     response = Response()
     response.status_code = 200
@@ -313,6 +347,7 @@ def download_all_excel():
     return response
 
 @app.route('/download_bim_excel', methods=['GET', 'POST'])
+#@login_required
 def download_bim_excel():
     response = Response()
     response.status_code = 200

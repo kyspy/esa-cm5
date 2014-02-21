@@ -18,14 +18,23 @@ manager.add_command('db', MigrateCommand)
 db.drop_all()
 db.create_all()
 
-class Bimlink(db.Model):
-    __tablename__ = 'bimlink'
-    revit_id = db.Column(db.Integer, primary_key = True)
-    excel_id = db.Column(db.String(60), unique=True)
+class Report(db.Model):
+    __tablename__ = 'report'
+    id = db.Column(db.Integer, primary_key = True)
+    bimimg_filename = db.Column(db.String(200))
+    siteimg_filename = db.Column(db.String(200))
+    site_caption = db.Column(db.String(200))
+    date = db.Column(db.Date)
+    note = db.Column(db.String(500))
+    summary = db.Column(db.String(500))
 
-    def __init__(self, revit_id, excel_id):
-        self.revit_id = revit_id
-        self.excel_id = excel_id
+    def __init__(self, bimimg_filename, siteimg_filename, site_caption, date, note, summary):
+        self.bimimg_filename = bimimg_filename
+        self.siteimg_filename = siteimg_filename
+        self.site_caption = site_caption
+        self.date = date
+        self.note = note
+        self.summary = summary
 
 class Bimimage(db.Model):
     __tablename__ = 'bimimage'

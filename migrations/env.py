@@ -13,7 +13,7 @@ fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from cm5_app import db
+# from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from flask import current_app
 config.set_main_option('sqlalchemy.url', current_app.config.get('SQLALCHEMY_DATABASE_URI'))

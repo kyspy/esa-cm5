@@ -12,7 +12,14 @@
 {% endblock navbar %}
 
 {% block content %}
-    <h2> Manhattan Structures South - Waterproofing Installation Progress As of {{i.report_date }}</h2>
+    <h2> Waterproofing Installation Progress: East Cavern Walls as of {{i.date }}</h2>
+    <div class="row">
+        <div class="col-lg-8">
+        <p><b>Progress Summary:</b> {{ i.summary }}</p>
+        <p><b>Note:</b> {{ i.note}} </p>
+        </div>
+    </div>
+    <div class="row">
     <div class="row">
         <div class="col-lg-12">
         <figure>
@@ -21,9 +28,6 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-lg-6">
-          <img src="{{ '/static/uploads/' + i.img_filename }}" width=100% />
-        </div>
         <div class="col-lg-6">
           <div class="table-responsive">
             <table class="table table-striped">
@@ -67,6 +71,9 @@
             </table>
           </div>
        </div>
+       <div class="col-lg-6">
+          <img src="{{ '/static/uploads/' + i.bimimg_filename }}" width=90% />
+        </div>
       </div>
 
 {% endblock content %}

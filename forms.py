@@ -2,7 +2,7 @@ from flask.ext.wtf import Form
 from wtforms import FloatField, DateField, StringField, IntegerField, TextField, PasswordField, FileField, validators
 from wtforms.validators import Required
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from models import Area, Shift, Material, Location
+from models import Area, Shift, Material, Location, Report
 
 def getAllAreas():
     return Area.query
@@ -15,6 +15,9 @@ def getAllShifts():
 
 def getAllMaterials():
     return Material.query
+
+def getAllReportDates():
+    return Report.query
 
 class TrackingForm(Form):
     date = DateField('Date (MM/DD/YYYY)', validators=[Required()], format='%m/%d/%Y')
@@ -33,18 +36,14 @@ class LoginForm(Form):
     email = TextField("Email",  [validators.Required("Please enter your email address."), validators.Email("Please enter your email address.")])
     password = PasswordField('Password', [validators.Required("Please enter a password.")])
 
-class WeeklyImgForm(Form):
-    img = FileField()
-    date = DateField('Date of Report (MM/DD/YYYY)', validators=[Required()], format='%m/%d/%Y')
-
-class WeeklyFieldImgForm(Form):
-    img = FileField()
-    date = DateField('Date of Report (MM/DD/YYYY)', validators=[Required()], format='%m/%d/%Y')
-    caption = StringField('Caption', validators = [Required()])
-
-class WeeklyForm(Form):
+class ReportForm(Form):
+    bimimg = FileField('Tracking Image from BIM')
+    siteimg = FileField('Progress Image from Site')
     summary = TextField('Progress Summary')
     note = TextField('Additional Notes')
+    date = DateField('Date (MM/DD/YYYY)', validators=[Required()], format='%m/%d/%Y')
+    site_caption = StringField('Progress Image Caption', validators = [Required()])
+    edit_date = QuerySelectField(query_factory=getAllReportDates, get_label='date')
 
 class AddAreaForm(Form):
     area = StringField('Area (for example East Cavern)', validators = [Required()])

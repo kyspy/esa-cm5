@@ -9,6 +9,7 @@
     <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
 
     <title>ESA CM005 Tracking App</title>
+    {% block head %} {% endblock head %}
     <link rel="stylesheet" href="../static/css/bootstrap.css">
     <link rel="stylesheet" href="../static/css/bootstrap-theme.css">
     <link rel="stylesheet" href="../static/css/custom.css">
@@ -42,7 +43,7 @@
             <li><a href="#">Rebar</a></li>
             <li><a href="#">Concrete</a></li>
             <li class="divider"></li>
-            <li class="dropdown-header">Create Weekly Report</li>
+            <li class="dropdown-header">Add Weekly Report</li>
             <li><a href="{{ url_for('create_waterproofing') }}">Waterproofing</a></li>
             <li><a href="#">Rebar</a></li>
             <li><a href="#">Concrete</a></li>
