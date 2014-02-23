@@ -1,5 +1,5 @@
 from flask.ext.wtf import Form
-from wtforms import FloatField, DateField, StringField, IntegerField, TextField, PasswordField, FileField, validators
+from wtforms import FloatField, DateField, StringField, IntegerField, TextField, PasswordField, FileField, validators, TextAreaField
 from wtforms.validators import Required
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from models import Area, Shift, Material, Location, Report
@@ -17,7 +17,7 @@ def getAllMaterials():
     return Material.query
 
 def getAllReportDates():
-    return Report.query
+    return Report.query.order_by(Report.id.desc())
 
 class TrackingForm(Form):
     date = DateField('Date (MM/DD/YYYY)', validators=[Required()], format='%m/%d/%Y')
@@ -39,8 +39,8 @@ class LoginForm(Form):
 class ReportForm(Form):
     bimimg = FileField('Tracking Image from BIM')
     siteimg = FileField('Progress Image from Site')
-    summary = TextField('Progress Summary')
-    note = TextField('Additional Notes')
+    summary = TextAreaField('Progress Summary')
+    note = TextAreaField('Additional Notes')
     date = DateField('Date (MM/DD/YYYY)', validators=[Required()], format='%m/%d/%Y')
     site_caption = StringField('Progress Image Caption', validators = [Required()])
     edit_date = QuerySelectField(query_factory=getAllReportDates, get_label='date')

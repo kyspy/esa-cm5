@@ -30,11 +30,6 @@
             {% call macro.form_field(form.material) %} {% endcall %}
             </div>
             </p>
-            <p>
-            {% call macro.form_field(form.laborer) %} {% endcall %}
-            {% call macro.form_field(form.foreman) %} {% endcall %}
-            {% call macro.form_field(form.supervisor) %} {% endcall %}
-            </p>
             <p> <input type="submit" value="Submit" class="btn btn-primary"> </p>
             </form>
 
@@ -51,9 +46,6 @@
                   <th>Station End</th>
                   <th>Quantity</th>
                   <th>Material</th>
-                  <th>Laborers</th>
-                  <th>Foremen</th>
-                  <th>Supers</th>
                 </tr>
               </thead>
               <tbody>
@@ -68,9 +60,6 @@
                   <td>{{line.station_end}}</td>
                   <td>{{line.quantity}}</td>
                     <td>{{line.material.material}}</td>
-                  <td>{{line.laborer}}</td>
-                  <td>{{line.foreman}}</td>
-                  <td>{{line.supervisor}}</td>
                 </tr>
                 {% endfor %}
               </tbody>

@@ -18,6 +18,15 @@ manager.add_command('db', MigrateCommand)
 db.drop_all()
 db.create_all()
 
+class Bimlink(db.Model):
+    __tablename__ = 'bimlink'
+    revit_id = db.Column(db.Integer, primary_key = True)
+    excel_id = db.Column(db.String(60), unique=True)
+
+    def __init__(self, revit_id, excel_id):
+        self.revit_id = revit_id
+        self.excel_id = excel_id
+
 class Report(db.Model):
     __tablename__ = 'report'
     id = db.Column(db.Integer, primary_key = True)
@@ -116,23 +125,17 @@ class Track(db.Model):
     station_start = db.Column(db.Float)
     station_end = db.Column(db.Float)
     quantity = db.Column(db.Float)
-    laborer = db.Column(db.Integer)
-    foreman = db.Column(db.Integer)
-    supervisor = db.Column(db.Integer)
     area_id = db.Column(db.Integer, db.ForeignKey('area.id'))
     location_id = db.Column(db.Integer, db.ForeignKey('location.id'))
     shift_id = db.Column(db.Integer, db.ForeignKey('shift.id'))
     material_id = db.Column(db.Integer, db.ForeignKey('material.id'))
 
-    def __init__(self, timestamp, date, station_start, station_end, quantity, laborer, foreman, supervisor):
+    def __init__(self, timestamp, date, station_start, station_end, quantity):
         self.timestamp = timestamp
         self.date = date
         self.station_start = station_start
         self.station_end = station_end
         self.quantity = quantity
-        self.laborer = laborer
-        self.foreman = foreman
-        self.supervisor = supervisor
 
     def get_id(self):
         return unicode(self.id)

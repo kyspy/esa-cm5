@@ -1,0 +1,41 @@
+<html>
+    <head>
+     <style type="text/css">
+        @page {
+              size: elevenSeventeen landscape;
+              margin: 1cm;
+              margin-bottom: 2.5cm;
+
+             @frame {
+                -pdf-frame-content: 'date_box';
+                 top: 2.4cm;
+                 left: 2.8cm;
+              }
+
+         }
+     </style>
+    </head>
+    <body>
+    {% block body %}
+    <!-- <div id="date_box" style="text-align:right; font-size: 20px;">
+    2012/04/26
+    </div> -->
+        <h2>Some page title.</h2>
+        <table width="100%" cellpadding="4" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td width="100%">Some text.</td>
+                </tr>
+            </tbody>
+            <tbody>
+                <tr style="border: 1px solid #000000;">
+                    <td width="100%">
+                        <h3 style="text-align: center;">Some subtitle</h3>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <img src="{{ '/static/img/LIRR.jpg' }}" />
+    {% endblock body %}
+    </body>
+</html>

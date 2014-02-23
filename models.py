@@ -20,14 +20,6 @@ class Report(db.Model):
     note = db.Column(db.String(500))
     summary = db.Column(db.String(500))
 
-    def __init__(self, bimimg_filename, siteimg_filename, site_caption, date, note, summary):
-        self.bimimg_filename = bimimg_filename
-        self.siteimg_filename = siteimg_filename
-        self.site_caption = site_caption
-        self.date = date
-        self.note = note
-        self.summary = summary
-
 class Area(db.Model):
     __tablename__ = 'area'
     id = db.Column(db.Integer, primary_key = True)
@@ -96,23 +88,17 @@ class Track(db.Model):
     station_start = db.Column(db.Float)
     station_end = db.Column(db.Float)
     quantity = db.Column(db.Float)
-    laborer = db.Column(db.Integer)
-    foreman = db.Column(db.Integer)
-    supervisor = db.Column(db.Integer)
     area_id = db.Column(db.Integer, db.ForeignKey('area.id'))
     location_id = db.Column(db.Integer, db.ForeignKey('location.id'))
     shift_id = db.Column(db.Integer, db.ForeignKey('shift.id'))
     material_id = db.Column(db.Integer, db.ForeignKey('material.id'))
 
-    def __init__(self, timestamp, date, station_start, station_end, quantity, laborer, foreman, supervisor):
+    def __init__(self, timestamp, date, station_start, station_end, quantity):
         self.timestamp = timestamp
         self.date = date
         self.station_start = station_start
         self.station_end = station_end
         self.quantity = quantity
-        self.laborer = laborer
-        self.foreman = foreman
-        self.supervisor = supervisor
 
     def get_id(self):
         return unicode(self.id)

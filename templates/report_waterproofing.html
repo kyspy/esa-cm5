@@ -2,12 +2,15 @@
 
 {% block navbar %}
 
-    <form class="navbar-form navbar-left" role="form" method="POST" action="">
-        <div class="form-group">
-            <input type="text" class="form-control" placeholder="Previous Report">
-        </div>
-        <input type="submit" value="Submit" class="btn btn-default">
-        </form>
+ <form class="navbar-form navbar-left" method="POST" role="form">
+    <div class="form-group">
+    {{ form.hidden_tag() }}
+    {% call macro.form_field(form.edit_date) %} {% endcall %}
+    </div>
+    <input type="submit" name="action" value="View Previous Report" class="btn btn-default">
+    </form>
+
+    <a href="{{ url_for('report_as_pdf') }}" class="navbar-form navbar-left"><button type="button" class="btn btn-default">Download Report as PDF</button></a>
 
 {% endblock navbar %}
 
@@ -20,14 +23,20 @@
         </div>
     </div>
     <div class="row">
-    <div class="row">
-        <div class="col-lg-12">
         <figure>
             <iframe type="image/svg+xml" src="{{ url_for('svg') }}" height=400 width=100% scrolling="no" frameBorder=0></iframe>
         </figure>
-        </div>
     </div>
     <div class="row">
+    <div class="col-lg-6">
+          <center><img src="{{ '/static/uploads/' + i.bimimg_filename }}" width=90% /></center>
+        </div>
+        <div class="col-lg-6">
+          <center><img src="{{ '/static/uploads/' + i.siteimg_filename }}" width=80% /></center>
+        <p><center><b>{{ i.site_caption }}</b></center></p>
+        </div>
+    </div>
+    <div class = 'row'>
         <div class="col-lg-6">
           <div class="table-responsive">
             <table class="table table-striped">
@@ -71,9 +80,6 @@
             </table>
           </div>
        </div>
-       <div class="col-lg-6">
-          <img src="{{ '/static/uploads/' + i.bimimg_filename }}" width=90% />
-        </div>
-      </div>
+    </div>
 
 {% endblock content %}

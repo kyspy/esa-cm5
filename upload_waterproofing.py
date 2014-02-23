@@ -25,18 +25,12 @@ def UploadWaterproofing():
         unit= sheet.cell(x,8).value
         station_start= sheet.cell(x,9).value
         station_end= sheet.cell(x,10).value
-        laborer= sheet.cell(x,11).value
-        foreman= sheet.cell(x,12).value
-        supervisor= sheet.cell(x,13).value
 
         t = Track(timestamp = datetime.utcnow(),
         date = date,
         station_start = station_start,
         station_end = station_end,
-        quantity = quantity,
-        laborer = laborer,
-        foreman = foreman,
-        supervisor = supervisor)
+        quantity = quantity)
 
         a = Area.query.filter_by(area = area).first()
         if a == None:

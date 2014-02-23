@@ -14,6 +14,9 @@ from werkzeug.utils import secure_filename
 from config import UPLOAD_FOLDER, ALLOWED_EXTENSIONS
 import pygal
 from pygal.style import Style
+import uuid
+import sx.pisa3 as pisa
+
 
 def flash_errors(form):
     for field, errors in form.errors.items():
@@ -120,16 +123,20 @@ def create_waterproofing():
         if request.form['action'] == 'Upload':
             bim_file = form.bimimg.data
             if bim_file and allowed_file(bim_file.filename):
-                bim_filename = secure_filename(bim_file.filename)
+                bim_filename = secure_filename(str(uuid.uuid4()) + bim_file.filename)
                 bim_file.save(os.path.join(app.config['UPLOAD_FOLDER'], bim_filename))
+            else:
+                bim_filename = ""
             site_file = form.siteimg.data
             if site_file and allowed_file(site_file.filename):
-                site_filename = secure_filename(site_file.filename)
+                site_filename = secure_filename(str(uuid.uuid4()) + site_file.filename)
                 site_file.save(os.path.join(app.config['UPLOAD_FOLDER'], site_filename))
-            f = Report(bimimg_filename = bim_file.filename, siteimg_filename = site_file.filename, site_caption = form.site_caption.data, date = form.date.data, note = form.note.data, summary = form.summary.data)
+            else:
+                site_filename = ""
+            f = Report(bimimg_filename = bim_filename, siteimg_filename = site_filename, site_caption = form.site_caption.data, date = form.date.data, note = form.note.data, summary = form.summary.data)
             db.session.add(f)
             db.session.commit()
-            return redirect(url_for('index'))
+            return redirect(url_for('report_waterproofing'))
         elif request.form['action'] == 'Edit':
             id_object = form.edit_date.data
             r = Report.query.get(id_object.id)
@@ -145,24 +152,23 @@ def edit_waterproofing(id):
     form = ReportForm(obj=report)
     if request.method == 'POST':
         if request.form['action'] == 'Upload':
-            #change it to overwrite the exisiting entry intead of making a new one
             form.populate_obj(report)
             bim_file = form.bimimg.data
             if bim_file and allowed_file(bim_file.filename):
-                bim_filename = secure_filename(bim_file.filename)
+                bim_filename = secure_filename(str(uuid.uuid4()) + bim_file.filename)
                 bim_file.save(os.path.join(app.config['UPLOAD_FOLDER'], bim_filename))
+                report.bimimg_filename = bim_filename
             site_file = form.siteimg.data
             if site_file and allowed_file(site_file.filename):
-                site_filename = secure_filename(site_file.filename)
+                site_filename = secure_filename(str(uuid.uuid4()) + site_file.filename)
                 site_file.save(os.path.join(app.config['UPLOAD_FOLDER'], site_filename))
-            report.bimimg_filename = bim_file.filename
-            report.siteimg_filename = site_file.filename
+                report.siteimg_filename = site_filename
             report.site_caption = form.site_caption.data
             report.date = form.date.data
             report.note = form.note.data
             report.summary = form.summary.data
             db.session.commit()
-            return redirect(url_for('index'))
+            return redirect(url_for('report_waterproofing'))
         elif request.form['action'] == 'Edit':
             id_object = form.edit_date.data
             r = Report.query.get(id_object.id)
@@ -174,6 +180,12 @@ def edit_waterproofing(id):
 @app.route("/report_waterproofing", methods=["GET", "POST"])
 #@login_required
 def report_waterproofing():
+    form = ReportForm()
+    if request.method == 'POST':
+        id_object = form.edit_date.data
+        r = Report.query.get(id_object.id)
+        id = r.id
+        return redirect(url_for('re_report_waterproofing', id=id))
     #get image
     i = Report.query.order_by(Report.id.desc()).first()
     #get image report date - 7 days and query database for entries in that week
@@ -193,7 +205,36 @@ def report_waterproofing():
                     sums[x] = [a.area, l.location, m.material, t.total]
 
     total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.date))
-    return render_template('report_waterproofing.html', i=i, total = total, sums = sums)
+    return render_template('report_waterproofing.html', i=i, total = total, sums = sums, form=form)
+
+@app.route("/report_waterproofing/<id>", methods=["GET", "POST"])
+#@login_required
+def re_report_waterproofing(id):
+    i = Report.query.get(id)
+    form = ReportForm()
+    if request.method == 'POST':
+        id_object = form.edit_date.data
+        r = Report.query.get(id_object.id)
+        id = r.id
+        return redirect(url_for('re_report_waterproofing', id=id))
+    #get image report date - 7 days and query database for entries in that week
+    report_date_end = i.date + timedelta(days=-7)
+    #get each area and total quanitity for each area
+    all_areas = Area.query.all()
+    all_locations = Location.query.all()
+    all_materials = Material.query.all()
+    sums = {}
+    x = 0
+    for a in all_areas:
+        for l in all_locations:
+            for m in all_materials:
+                x += 1
+                total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.date)).filter(Material.material == m.material).filter(Area.area == a.area).filter(Location.location == l.location)
+                for t in total.all():
+                    sums[x] = [a.area, l.location, m.material, t.total]
+
+    total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.date))
+    return render_template('report_waterproofing.html', i=i, total = total, sums = sums, form=form)
 
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])
@@ -214,10 +255,7 @@ def track_waterproofing():
         date = form.date.data,
         station_start = form.station_start.data,
         station_end = form.station_end.data,
-        quantity = form.quantity.data,
-        laborer = form.laborer.data,
-        foreman = form.foreman.data,
-        supervisor = form.supervisor.data)
+        quantity = form.quantity.data)
 
         form_location = form.location.data
         l = Location.query.filter_by(location = form_location.location).first()
@@ -266,6 +304,44 @@ def delete_entry():
     db.session.delete(entry)
     db.session.commit()
     return redirect(url_for('track_waterproofing'))
+
+@app.route('/report_as_pdf', methods=['GET', 'POST'])
+#@login_required
+def report_as_pdf():
+    response = Response()
+    response.status_code = 200
+
+    pdf = StringIO()
+    pisa.CreatePDF(StringIO(render_template('test_pdf.html').encode('utf-8')), pdf)
+    response.data = pdf.getvalue()
+
+    filename = 'ESA CM005 Waterproofing_' + datetime.utcnow().strftime('%Y-%m-%d') + '.pdf'
+    mimetype_tuple = mimetypes.guess_type(filename)
+
+    #HTTP headers for forcing file download
+    response_headers = Headers({
+            'Pragma': "public",  # required,
+            'Expires': '0',
+            'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+            'Cache-Control': 'private',  # required for certain browsers,
+            'Content-Type': mimetype_tuple[0],
+            'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+            'Content-Transfer-Encoding': 'binary',
+            'Content-Length': len(response.data)
+        })
+
+    if not mimetype_tuple[1] is None:
+        response.update({
+                'Content-Encoding': mimetype_tuple[1]
+            })
+
+    response.headers = response_headers
+
+    #as per jquery.fileDownload.js requirements
+    response.set_cookie('fileDownload', 'true', path='/')
+
+    return response
+
 
 @app.route('/download_all_excel', methods=['GET', 'POST'])
 #@login_required
@@ -372,11 +448,6 @@ def download_bim_excel():
                 revit_id = Bimlink.query.filter_by(excel_id = excel_id).first()
                 if revit_id:
                     sheet1.row(i).write(0, revit_id.revit_id)
-                    sheet1.row(i).write(1,excel_id)
-                    sheet1.row(i).write(2,'Complete')
-                    sheet1.row(i).write(3,str(li.date))
-                    sheet1.row(i).write(4,li.material.material)
-                else:
                     sheet1.row(i).write(1,excel_id)
                     sheet1.row(i).write(2,'Complete')
                     sheet1.row(i).write(3,str(li.date))

@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
 
     <title>ESA CM005 Tracking App</title>
     {% block head %} {% endblock head %}
@@ -27,40 +26,19 @@
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       {% block navbar %} {% endblock navbar %}
       <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Track<b class="caret"></b></a>
-          <ul class="dropdown-menu">
-            <li><a href="{{ url_for('track_waterproofing') }}">Waterproofing</a></li>
-            <li><a href="#">Rebar</a></li>
-            <li><a href="#">Concrete</a></li>
-          </ul>
-        </li>
+         <li> <a href="{{ url_for('track_waterproofing') }}">Track</a></li>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Report<b class="caret"></b></a>
           <ul class="dropdown-menu">
-          <li class="dropdown-header">View Weekly Report</li>
-            <li><a href="{{ url_for('report_waterproofing') }}">Waterproofing</a></li>
-            <li><a href="#">Rebar</a></li>
-            <li><a href="#">Concrete</a></li>
-            <li class="divider"></li>
-            <li class="dropdown-header">Add Weekly Report</li>
-            <li><a href="{{ url_for('create_waterproofing') }}">Waterproofing</a></li>
-            <li><a href="#">Rebar</a></li>
-            <li><a href="#">Concrete</a></li>
+            <li><a href="{{ url_for('report_waterproofing') }}">View</a></li>
+            <li><a href="{{ url_for('create_waterproofing') }}">Add</a></li>
           </ul>
         </li>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Export Excel<b class="caret"></b></a>
           <ul class="dropdown-menu">
-            <li class="dropdown-header">Export for BIM Link</li>
-            <li><a href="{{ url_for('download_bim_excel') }}">Waterproofing BIM Link</a></li>
-            <li><a href="#">Rebar BIM Link</a></li>
-            <li><a href="#">Concrete BIM Link</a></li>
-            <li class="divider"></li>
-            <li class="dropdown-header">Export All Data</li>
-            <li><a href="{{ url_for('download_all_excel') }}">Waterproofing Data</a></li>
-            <li><a href="#">Rebar Data</a></li>
-            <li><a href="#">Concrete Data</a></li>
+            <li><a href="{{ url_for('download_bim_excel') }}">BIM Link</a></li>
+            <li><a href="{{ url_for('download_all_excel') }}">All Data</a></li>
           </ul>
         </li>
         <li><a href="{{ url_for('logout') }}">Logout</a></li>

@@ -1,17 +1,25 @@
-.restricted {
-    overflow-y: hidden;
-    overflow-x: hidden;
-    overflow: hidden;
-    }
+.navbar-blue {
+    background-color: #355190;
+    border-color: #e7e7e7;
+}
 
-embed {
-    overflow-y: hidden;
-    overflow-x: hidden;
-    overflow: hidden;
-    }
+.navbar-blue .navbar-brand {
+color: #fff;
+}
 
-figure {
-    overflow-y: hidden;
-    overflow-x: hidden;
-    overflow: hidden;
-    }
+.navbar-blue a {
+color: #fff;
+text-decoration: none;
+}
+
+.navbar-blue .nav > li > a:hover, .navbar-blue .nav > li > a:focus {
+text-decoration: none;
+background-color: #3d5ba0;
+}
+
+.btn-blue {
+background-image: linear-gradient(to bottom, #3d5ba0 0%, #355190 100%);
+background-repeat: repeat-x;
+border-color: #2b669a;
+background-color: #355190;
+}
