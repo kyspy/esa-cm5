@@ -10,7 +10,7 @@
     <input type="submit" name="action" value="View Previous Report" class="btn btn-default">
     </form>
 
-    <a href="{{ url_for('report_as_pdf') }}" class="navbar-form navbar-left"><button type="button" class="btn btn-default">Download Report as PDF</button></a>
+    <a href="{{ url_for('report_as_pdf', id=i.id) }}" class="navbar-form navbar-left"><button type="button" class="btn btn-default">Download Report as PDF</button></a>
 
 {% endblock navbar %}
 

@@ -30,6 +30,21 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
+def report_table(date, report_date_end):
+    all_areas = Area.query.all()
+    all_locations = Location.query.all()
+    all_materials = Material.query.all()
+    sums = {}
+    x = 0
+    for a in all_areas:
+        for l in all_locations:
+            for m in all_materials:
+                x += 1
+                total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, date)).filter(Material.material == m.material).filter(Area.area == a.area).filter(Location.location == l.location)
+                for t in total.all():
+                    sums[x] = [a.area, l.location, m.material, t.total]
+    return sums
+
 @app.route("/svg", methods=["GET", "POST"])
 def svg():
     custom_style = Style(
@@ -186,24 +201,9 @@ def report_waterproofing():
         r = Report.query.get(id_object.id)
         id = r.id
         return redirect(url_for('re_report_waterproofing', id=id))
-    #get image
     i = Report.query.order_by(Report.id.desc()).first()
-    #get image report date - 7 days and query database for entries in that week
     report_date_end = i.date + timedelta(days=-7)
-    #get each area and total quanitity for each area
-    all_areas = Area.query.all()
-    all_locations = Location.query.all()
-    all_materials = Material.query.all()
-    sums = {}
-    x = 0
-    for a in all_areas:
-        for l in all_locations:
-            for m in all_materials:
-                x += 1
-                total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.date)).filter(Material.material == m.material).filter(Area.area == a.area).filter(Location.location == l.location)
-                for t in total.all():
-                    sums[x] = [a.area, l.location, m.material, t.total]
-
+    sums = report_table(i.date, report_date_end)
     total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.date))
     return render_template('report_waterproofing.html', i=i, total = total, sums = sums, form=form)
 
@@ -217,22 +217,8 @@ def re_report_waterproofing(id):
         r = Report.query.get(id_object.id)
         id = r.id
         return redirect(url_for('re_report_waterproofing', id=id))
-    #get image report date - 7 days and query database for entries in that week
     report_date_end = i.date + timedelta(days=-7)
-    #get each area and total quanitity for each area
-    all_areas = Area.query.all()
-    all_locations = Location.query.all()
-    all_materials = Material.query.all()
-    sums = {}
-    x = 0
-    for a in all_areas:
-        for l in all_locations:
-            for m in all_materials:
-                x += 1
-                total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.date)).filter(Material.material == m.material).filter(Area.area == a.area).filter(Location.location == l.location)
-                for t in total.all():
-                    sums[x] = [a.area, l.location, m.material, t.total]
-
+    sums = report_table(i.date, report_date_end)
     total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.date))
     return render_template('report_waterproofing.html', i=i, total = total, sums = sums, form=form)
 
@@ -305,17 +291,21 @@ def delete_entry():
     db.session.commit()
     return redirect(url_for('track_waterproofing'))
 
-@app.route('/report_as_pdf', methods=['GET', 'POST'])
+@app.route('/report_as_pdf/<id>', methods=['GET', 'POST'])
 #@login_required
-def report_as_pdf():
+def report_as_pdf(id):
     response = Response()
     response.status_code = 200
 
-    pdf = StringIO()
-    pisa.CreatePDF(StringIO(render_template('test_pdf.html').encode('utf-8')), pdf)
+    data = Report.query.get(id)
+    report_date_end = data.date + timedelta(days=-7)
+    sums = report_table(data.date, report_date_end)
+
+    pdf = StringIO.StringIO()
+    pisa.CreatePDF(StringIO.StringIO(render_template('test_pdf.html', data=data, sums=sums).encode('utf-8')), pdf)
     response.data = pdf.getvalue()
 
-    filename = 'ESA CM005 Waterproofing_' + datetime.utcnow().strftime('%Y-%m-%d') + '.pdf'
+    filename = 'ESA CM005 Waterproofing Report' + data.date.strftime('%Y-%m-%d') + '.pdf'
     mimetype_tuple = mimetypes.guess_type(filename)
 
     #HTTP headers for forcing file download

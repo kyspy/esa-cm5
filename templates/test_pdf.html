@@ -1,41 +1,82 @@
 <html>
     <head>
-     <style type="text/css">
+    <style type="text/css">
         @page {
               size: elevenSeventeen landscape;
               margin: 1cm;
               margin-bottom: 2.5cm;
-
-             @frame {
-                -pdf-frame-content: 'date_box';
-                 top: 2.4cm;
-                 left: 2.8cm;
-              }
-
          }
+         table{border-collapse:collapse;}
+         tr, td, th {margin:0;border:0;padding:0;}
+         tr.blue {background-color:#355190;margin:0;border:0;padding:0;height=30px;}
      </style>
     </head>
     <body>
     {% block body %}
-    <!-- <div id="date_box" style="text-align:right; font-size: 20px;">
-    2012/04/26
-    </div> -->
-        <h2>Some page title.</h2>
-        <table width="100%" cellpadding="4" cellspacing="0">
-            <tbody>
+    <div>
+    <table>
+    <tr height=40px>
+    <td><img src="{{ url_for('static', filename='img/MTA.jpg', _external=True) }}" height=40 align=left /></td>
+    <td><font size="20px" color="#355190" align="center" font="serif">CM005 - MANHATTAN STRUCTURES SOUTH</font></td>
+    <td><img src="{{ url_for('static', filename='img/LIRR.jpg', _external=True) }}" height=40 align=right /></td>
+    </tr>
+    <tr class="blue">
+    <td><font size="20px" align="left" color="white">WATERPROOFING INSTALLATION PROGRESS: EAST CAVERN WALLS</font></td>
+    <td></td>
+    <td align=right><font size="20px" align="right" color="white">AS OF {{data.date}}</font></td>
+    </tr>
+    </table>
+    </div>
+
+
+        <h2>Waterproofing Installation Progress: East Cavern Walls as of {{data.date}} </h2>
+        <div class = 'row'>
+        <div class="col-lg-6">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
                 <tr>
-                    <td width="100%">Some text.</td>
+                  <th>Area</th>
+                  <th>Location</th>
+                  <th>Material</th>
+                  <th>Unit</th>
+                  <th>Quantity Installed</th>
                 </tr>
-            </tbody>
-            <tbody>
-                <tr style="border: 1px solid #000000;">
-                    <td width="100%">
-                        <h3 style="text-align: center;">Some subtitle</h3>
+              </thead>
+              <tbody>
+               {%- for key, value in sums.items()%}
+               {% if value[3] %}
+                <tr>
+                    <td>{{value[0]}}</td>
+                    <td>{{value[1]}}</td>
+                    <td>{{value[2]}}</td>
+                    <td>LF</td>
+                  <td>{{value[3]}}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+                <tr>
+                    <td><b>Total Installed:</b></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+
+                    </td>
+                    <td><b>
+                         {% for t in total %}
+                            {{t.total}}
+                        {% endfor %}
+                        </b>
+                    </td>
                     </td>
                 </tr>
-            </tbody>
-        </table>
-        <img src="{{ '/static/img/LIRR.jpg' }}" />
+              </tbody>
+            </table>
+          </div>
+       </div>
+    </div>
+        <img src="{{ url_for('static', filename='uploads/' + data.bimimg_filename, _external=True) }}" width = 500 />
+        <img src="{{ url_for('static', filename='uploads/' + data.siteimg_filename, _external=True) }}" width = 500 />
     {% endblock body %}
     </body>
 </html>
