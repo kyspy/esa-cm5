@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block head %}
+    <link rel="stylesheet" href="../../static/css/bootstrap.css">
+    <link rel="stylesheet" href="../../static/css/bootstrap-theme.css">
+    <link rel="stylesheet" href="../../static/css/custom.css">
+{% endblock head %}
+
+{% block content %}
+    <h2 class="page-header">Add image to Daily Report</h2>
+    <div class="col-lg-6">
+    <form action="" method="POST" enctype="multipart/form-data" class="form-default">
+    {{ form.hidden_tag() }}
+    <p>
+    <div class="input-group input-group">
+    <span class="input-group-addon">Area</span>
+    {% call macro.form_field(form.area) %} {% endcall %}
+    </div>
+    </p>
+    {% call macro.form_field(form.date) %} {% endcall %}
+    {% call macro.form_field(form.img) %} {% endcall %}
+    {% call macro.form_field(form.caption) %} {% endcall %}
+    <input type="submit" name="action" value="Upload" class="btn btn-primary">
+    </form>
+    </div>
+
+{% endblock content %}

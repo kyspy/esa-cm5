@@ -18,6 +18,21 @@ manager.add_command('db', MigrateCommand)
 db.drop_all()
 db.create_all()
 
+class Daily(db.Model):
+    __tablename__ = 'daily'
+    id = db.Column(db.Integer, primary_key = True)
+    timestamp = db.Column(db.DateTime)
+    date = db.Column(db.Date)
+    img_filename = db.Column(db.String(200))
+    caption = db.Column(db.String(200))
+    area_id = db.Column(db.Integer, db.ForeignKey('area.id'))
+
+    def __init__(self, timestamp, date, img_filename, caption):
+        self.timestamp = timestamp
+        self.date = date
+        self.img_filename = img_filename
+        self.caption = caption
+
 class Baseline(db.Model):
     __tablename__ = 'baseline'
     id = db.Column(db.Integer, primary_key = True)
@@ -49,31 +64,12 @@ class Report(db.Model):
     note = db.Column(db.String(500))
     summary = db.Column(db.String(500))
 
-    def __init__(self, bimimg_filename, siteimg_filename, site_caption, date, note, summary):
-        self.bimimg_filename = bimimg_filename
-        self.siteimg_filename = siteimg_filename
-        self.site_caption = site_caption
-        self.date = date
-        self.note = note
-        self.summary = summary
-
-class Bimimage(db.Model):
-    __tablename__ = 'bimimage'
-    id = db.Column(db.Integer, primary_key = True)
-    img_filename = db.Column(db.String(60))
-    report_date = db.Column(db.Date, unique=True)
-    report_type = db.Column(db.String(60))
-
-    def __init__(self, img_filename, report_date, report_type):
-        self.img_filename = img_filename
-        self.report_date = report_date
-        self.report_type = report_type
-
 class Area(db.Model):
     __tablename__ = 'area'
     id = db.Column(db.Integer, primary_key = True)
     area = db.Column(db.String(20), unique = True)
     tracks = db.relationship('Track', backref='area', lazy='dynamic')
+    days = db.relationship('Daily', backref='area', lazy='dynamic')
 
     def __init__(self, area):
         self.area = area

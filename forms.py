@@ -3,6 +3,7 @@ from wtforms import FloatField, DateField, StringField, IntegerField, TextField,
 from wtforms.validators import Required
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from models import Area, Shift, Material, Location, Report
+from datetime import datetime
 
 def getAllAreas():
     return Area.query
@@ -18,6 +19,12 @@ def getAllMaterials():
 
 def getAllReportDates():
     return Report.query.order_by(Report.id.desc())
+
+class DailyForm(Form):
+    area = QuerySelectField(query_factory=getAllAreas, get_label='area')
+    date = DateField(datetime.today(), validators=[Required()], format='%m/%d/%Y')
+    img = FileField('Image')
+    caption = TextAreaField('Description')
 
 class TrackingForm(Form):
     date = DateField('Date (MM/DD/YYYY)', validators=[Required()], format='%m/%d/%Y')

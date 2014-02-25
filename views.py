@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, flash, Response, request
 from cm5_app import app, db, login_manager
-from forms import TrackingForm, LoginForm, ReportForm, AddAreaForm, AddShiftForm, AddMaterialForm
-from models import Area, Shift, Material, User, Bimlink, Report, Track, Location, Baseline
+from forms import TrackingForm, LoginForm, ReportForm, AddAreaForm, AddShiftForm, AddMaterialForm, DailyForm
+from models import Area, Shift, Material, User, Bimlink, Report, Track, Location, Baseline, Daily
 from datetime import datetime, timedelta
 from flask.ext.login import login_user, login_required, logout_user
 from sqlalchemy import func
@@ -44,39 +44,33 @@ def report_table(date, report_date_end):
                     sums[x] = [a.area, l.location, m.material, t.total]
     return sums
 
+def make_chart(i):
+    base = Baseline.query.order_by(Baseline.date).all()
+    actual = Track.query.join(Material).filter(Material.id == Track.material_id).order_by(Track.date).all()
+    early_list = []
+    late_list = []
+    actual_list = []
+    total = 0
+    for b in base:
+        if b.early:
+            early_list.append([b.date.strftime('%Y-%m-%d'), int(b.early)])
+    for b in base:
+        if b.late:
+            late_list.append([b.date.strftime('%Y-%m-%d'), int(b.late)])
+    #actual faked for demo
+    for a in actual:
+        if a.material.material == 'Fleece / Geo Drain' and a.date <= i.date:
+            total += int(a.quantity)
+            actual_list.append([a.date.strftime('%Y-%m-%d'), int(total/50)])
+
+    chart = [{'data': list(early_list),'name': 'Baseline-Early'}, {'data': list(late_list), 'name': 'Baseline-Late'},
+        {'data': list(actual_list), 'name': 'Actual'}]
+
+    return chart
+
 @login_manager.user_loader
 def load_user(email):
     return User.get(email)
-
-@app.route('/chart')
-def first_graph():
-    data = {'Temp': 52.9, 'Temp2': 1.6, 'Temp3': 27.7}
-    return render_template('first_chart.html', data=data)
-
-@app.route("/svg/<id>", methods=["GET", "POST"])
-def svg(id):
-    custom_style = Style(
-        background='transparent',
-        plot_background='transparent',
-        foreground='#333',
-        foreground_light='#666',
-        foreground_dark='#222222',
-        opacity='.5',
-        opacity_hover='.9',
-        transition='250ms ease-in',
-        colors=(
-        'rgb(12,55,149)', 'rgb(117,38,65)', 'rgb(228,127,0)', 'rgb(159,170,0)',
-        'rgb(149,12,12)'))
-
-    i = Report.query.get(id)
-    dates = Baseline.query.all()
-
-    chart = pygal.DateY(style=custom_style, label_font_size=14, legend_font_size=14, width=1200, height=400, show_dots=False, x_label_format="%Y-%m-%d")
-    chart.x_label_format = "%m-%d-%Y"
-
-    svg = chart.render()
-
-    return svg
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -163,6 +157,14 @@ def create_waterproofing():
     elif request.method == 'GET':
         return render_template('create_waterproofing.html', form=form, data_type="Report", action="Add a")
 
+@app.route("/create_daily", methods=["GET", "POST"])
+#@login_required
+def create_daily():
+    #figure out how to resize the image
+    form = DailyForm()
+
+    return render_template('create_daily.html', form=form)
+
 @app.route("/create_waterproofing/<id>/", methods=["GET", "POST"])
 #@login_required
 def edit_waterproofing(id):
@@ -207,9 +209,10 @@ def report_waterproofing():
     i = Report.query.order_by(Report.id.desc()).first()
     report_date_end = i.date + timedelta(days=-7)
     sums = report_table(i.date, report_date_end)
-    data = {'Temp': 52.9, 'Temp2': 1.6, 'Temp3': 27.7}
+    chart = make_chart(i)
     total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.date))
-    return render_template('report_waterproofing.html', i=i, total = total, sums = sums, form=form, data=data)
+    total_all= db.session.query(func.sum(Track.quantity).label('total_all')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between('2000-01-01', i.date))
+    return render_template('report_waterproofing.html', i=i, total = total, sums = sums, form=form, chart=chart, total_all=total_all)
 
 @app.route("/report_waterproofing/<id>", methods=["GET", "POST"])
 #@login_required
@@ -223,8 +226,10 @@ def re_report_waterproofing(id):
         return redirect(url_for('re_report_waterproofing', id=id))
     report_date_end = i.date + timedelta(days=-7)
     sums = report_table(i.date, report_date_end)
+    chart = make_chart(i)
     total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.date))
-    return render_template('report_waterproofing.html', i=i, total = total, sums = sums, form=form)
+    total_all= db.session.query(func.sum(Track.quantity).label('total_all')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between('2000-01-01', i.date))
+    return render_template('report_waterproofing.html', i=i, total = total, sums = sums, form=form, chart=chart, total_all=total_all)
 
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])
@@ -304,9 +309,10 @@ def report_as_pdf(id):
     data = Report.query.get(id)
     report_date_end = data.date + timedelta(days=-7)
     sums = report_table(data.date, report_date_end)
+    chart = make_chart(data)
 
     pdf = StringIO.StringIO()
-    pisa.CreatePDF(StringIO.StringIO(render_template('test_pdf.html', data=data, sums=sums).encode('utf-8')), pdf)
+    pisa.CreatePDF(StringIO.StringIO(render_template('test_pdf.html', data=data, sums=sums, chart=chart).encode('utf-8')), pdf)
     response.data = pdf.getvalue()
 
     filename = 'ESA CM005 Waterproofing Report' + data.date.strftime('%Y-%m-%d') + '.pdf'

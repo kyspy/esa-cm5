@@ -1,6 +1,21 @@
 from cm5_app import db
 from flask_login import UserMixin
 
+class Daily(db.Model):
+    __tablename__ = 'daily'
+    id = db.Column(db.Integer, primary_key = True)
+    timestamp = db.Column(db.DateTime)
+    date = db.Column(db.Date)
+    img_filename = db.Column(db.String(200))
+    caption = db.Column(db.String(200))
+    area_id = db.Column(db.Integer, db.ForeignKey('area.id'))
+
+    def __init__(self, timestamp, date, img_filename, caption):
+        self.timestamp = timestamp
+        self.date = date
+        self.img_filename = img_filename
+        self.caption = caption
+
 class Baseline(db.Model):
     __tablename__ = 'baseline'
     id = db.Column(db.Integer, primary_key = True)
@@ -37,6 +52,7 @@ class Area(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     area = db.Column(db.String(20), unique = True)
     tracks = db.relationship('Track', backref='area', lazy='dynamic')
+    days = db.relationship('Daily', backref='area', lazy='dynamic')
 
     def __init__(self, area):
         self.area = area

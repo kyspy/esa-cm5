@@ -7,33 +7,48 @@
     {{ form.hidden_tag() }}
     {% call macro.form_field(form.edit_date) %} {% endcall %}
     </div>
-    <input type="submit" name="action" value="View Previous Report" class="btn btn-default">
+    <input type="submit" name="action" value="View Report" class="btn btn-default">
     </form>
 
-    <a href="{{ url_for('report_as_pdf', id=i.id) }}" class="navbar-form navbar-left"><button type="button" class="btn btn-default">Download Report as PDF</button></a>
+    <a href="{{ url_for('report_as_pdf', id=i.id) }}" class="navbar-form navbar-left"><button type="button" class="btn btn-default">Make PDF</button></a>
 
 {% endblock navbar %}
 
 {% block content %}
-    <h2> Waterproofing Installation Progress: East Cavern Walls as of {{i.date }}</h2>
+    <h2 class="page-header"> Waterproofing Installation Progress: East Cavern Walls as of {{i.date }}</h2>
     <div class="row">
+    <p></p>
+    </div>
+    <div class="row">
+    <div class="col-lg-12">
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
         <script src="http://code.highcharts.com/highcharts.js"></script>
         <script src="{{ url_for('static', filename='js/chartkick.js') }}"></script>
-        {% bar_chart data %}
-        <!--
-        <figure>
-            <iframe type="image/svg+xml" src="{{ url_for('svg', id=i.id) }}" height=400 width=100% scrolling="no" frameBorder=0></iframe>
-        </figure>
-        -->
+        <center><b>East Bound Waterproofing (Pits &amp; Walls) Progress Curve (Percent)</b></center>
+        {% line_chart chart %}
+    </div>
+    </div>
+    <div class="row">
+    <p><b>Early Finish Date:</b> 01/08/14 &bull; <b>Late Finish Date:</b> 02/18/14 &bull; <b>Data Date:</b> {{i.date}} &bull;
+    <b>Total PVC Planned</b> = 136,111 SF &bull; <b>Actual PVC To Date</b> = {% for t in total_all %} {{t.total_all}} {% endfor %} SF &bull; <b>Actual Work Days:</b> xx &bull;
+    <b>Percentage Complete to Date:</b> Baseline-Early: xx% &bull; Baseline-Late: xx% &bull;; Actual: xx% &bull;
+    <b>Baseline-Early Production Rate:</b> 6,815 SF/Day &bull; <b>Baseline-Late Production Rate:</b> 2,781 SF/Day &bull; <b>Actual Production Rate:</b> xxxx SF/Day</p>
+
     </div>
     <div class="row">
     <div class="col-lg-6">
-          <center><img src="{{ '/static/uploads/' + i.bimimg_filename }}" width=90% /></center>
-        </div>
+    <div class="row">
+    <p><center><b>East Cavern - PVC Progress</b></center></p>
+    </div>
+    <div class="row" style="position: relative; left: 0; top: 0;">
+          <center><img src="{{ '/static/uploads/' + i.bimimg_filename }}" width=100% style="position: relative; top: 0; left: 0;" /></center>
+          <center><img src="{{ '/static/img/legend.jpg'}}" width=150px style="position: absolute; top: 0; left: 0;" /></center>
+    </div>
+    </div>
         <div class="col-lg-6">
-          <center><img src="{{ '/static/uploads/' + i.siteimg_filename }}" width=80% /></center>
-        <p><center><b>{{ i.site_caption }}</b></center></p>
+                <p><center><b>{{ i.site_caption }}</b></center></p>
+          <center><img src="{{ '/static/uploads/' + i.siteimg_filename }}" width=100% /></center>
+
         </div>
     </div>
     <div class = 'row'>
@@ -86,5 +101,4 @@
        </div>
 
     </div>
-
 {% endblock content %}
