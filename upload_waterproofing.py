@@ -10,7 +10,7 @@ def UploadWaterproofing():
     Material.query.delete()
     Shift.query.delete()
 
-    book = open_workbook('static/uploads/waterproofing_data.xls')
+    book = open_workbook('static/excel/waterproofing_data.xls')
     sheet = book.sheet_by_index(0)
 
     for x in range(0, sheet.nrows):

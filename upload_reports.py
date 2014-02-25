@@ -6,7 +6,7 @@ from datetime import datetime
 def UploadReport():
     Report.query.delete()
 
-    book = open_workbook('static/uploads/report_data.xls')
+    book = open_workbook('static/excel/report_data.xls')
     sheet = book.sheet_by_index(0)
 
     for x in range(0, sheet.nrows):

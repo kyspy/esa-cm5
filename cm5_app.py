@@ -4,6 +4,7 @@ from flask.ext.login import LoginManager
 
 app = Flask(__name__)
 app.config.from_object('config')
+app.jinja_env.add_extension("chartkick.ext.charts")
 
 db = SQLAlchemy(app)
 

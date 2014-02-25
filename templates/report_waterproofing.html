@@ -17,15 +17,15 @@
 {% block content %}
     <h2> Waterproofing Installation Progress: East Cavern Walls as of {{i.date }}</h2>
     <div class="row">
-        <div class="col-lg-8">
-        <p><b>Progress Summary:</b> {{ i.summary }}</p>
-        <p><b>Note:</b> {{ i.note}} </p>
-        </div>
-    </div>
-    <div class="row">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+        <script src="http://code.highcharts.com/highcharts.js"></script>
+        <script src="{{ url_for('static', filename='js/chartkick.js') }}"></script>
+        {% bar_chart data %}
+        <!--
         <figure>
-            <iframe type="image/svg+xml" src="{{ url_for('svg') }}" height=400 width=100% scrolling="no" frameBorder=0></iframe>
+            <iframe type="image/svg+xml" src="{{ url_for('svg', id=i.id) }}" height=400 width=100% scrolling="no" frameBorder=0></iframe>
         </figure>
+        -->
     </div>
     <div class="row">
     <div class="col-lg-6">
@@ -37,6 +37,10 @@
         </div>
     </div>
     <div class = 'row'>
+    <div class="col-lg-6">
+        <p><b>Progress Summary:</b> {{ i.summary }}</p>
+        <p><b>Note:</b> {{ i.note}} </p>
+        </div>
         <div class="col-lg-6">
           <div class="table-responsive">
             <table class="table table-striped">
@@ -80,6 +84,7 @@
             </table>
           </div>
        </div>
+
     </div>
 
 {% endblock content %}

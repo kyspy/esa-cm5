@@ -1,6 +1,18 @@
 from cm5_app import db
 from flask_login import UserMixin
 
+class Baseline(db.Model):
+    __tablename__ = 'baseline'
+    id = db.Column(db.Integer, primary_key = True)
+    date = db.Column(db.Date)
+    early = db.Column(db.Integer)
+    late = db.Column(db.Integer)
+
+    def __init__(self, date, early, late):
+        self.date = date
+        self.early = early
+        self.late = late
+
 class Bimlink(db.Model):
     __tablename__ = 'bimlink'
     revit_id = db.Column(db.Integer, primary_key = True)

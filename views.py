@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, flash, Response, request
 from cm5_app import app, db, login_manager
 from forms import TrackingForm, LoginForm, ReportForm, AddAreaForm, AddShiftForm, AddMaterialForm
-from models import Area, Shift, Material, User, Bimlink, Report, Track, Location
+from models import Area, Shift, Material, User, Bimlink, Report, Track, Location, Baseline
 from datetime import datetime, timedelta
 from flask.ext.login import login_user, login_required, logout_user
 from sqlalchemy import func
@@ -16,7 +16,6 @@ import pygal
 from pygal.style import Style
 import uuid
 import sx.pisa3 as pisa
-
 
 def flash_errors(form):
     for field, errors in form.errors.items():
@@ -45,8 +44,17 @@ def report_table(date, report_date_end):
                     sums[x] = [a.area, l.location, m.material, t.total]
     return sums
 
-@app.route("/svg", methods=["GET", "POST"])
-def svg():
+@login_manager.user_loader
+def load_user(email):
+    return User.get(email)
+
+@app.route('/chart')
+def first_graph():
+    data = {'Temp': 52.9, 'Temp2': 1.6, 'Temp3': 27.7}
+    return render_template('first_chart.html', data=data)
+
+@app.route("/svg/<id>", methods=["GET", "POST"])
+def svg(id):
     custom_style = Style(
         background='transparent',
         plot_background='transparent',
@@ -60,20 +68,15 @@ def svg():
         'rgb(12,55,149)', 'rgb(117,38,65)', 'rgb(228,127,0)', 'rgb(159,170,0)',
         'rgb(149,12,12)'))
 
-    line_chart = pygal.Line(style=custom_style, label_font_size=14, legend_font_size=14, width=1200, height=400, show_dots=False)
-    line_chart.title = 'East Bound Waterproofing (Pits & Walls) Progress Curve'
-    line_chart.y_title = '% Complete'
-    line_chart.x_labels = map(str, range(2002, 2013))
-    line_chart.add('Baseline-Early', [None, None, 0, 16.6,   25,   31, 36.4, 45.5, 46.3, 42.8, 37.1])
-    line_chart.add('Baseline-Late',  [None, None, None, None, None, None,    0,  3.9, 10.8, 23.8, 35.3])
-    line_chart.add('Actual',      [85.8, 84.6, 84.7, 74.5,   66, 58.6, 54.7, 44.8, 36.2, 26.6, 20.1])
-    svg = line_chart.render()
+    i = Report.query.get(id)
+    dates = Baseline.query.all()
+
+    chart = pygal.DateY(style=custom_style, label_font_size=14, legend_font_size=14, width=1200, height=400, show_dots=False, x_label_format="%Y-%m-%d")
+    chart.x_label_format = "%m-%d-%Y"
+
+    svg = chart.render()
 
     return svg
-
-@login_manager.user_loader
-def load_user(email):
-    return User.get(email)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -204,8 +207,9 @@ def report_waterproofing():
     i = Report.query.order_by(Report.id.desc()).first()
     report_date_end = i.date + timedelta(days=-7)
     sums = report_table(i.date, report_date_end)
+    data = {'Temp': 52.9, 'Temp2': 1.6, 'Temp3': 27.7}
     total = db.session.query(func.sum(Track.quantity).label('total')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between(report_date_end, i.date))
-    return render_template('report_waterproofing.html', i=i, total = total, sums = sums, form=form)
+    return render_template('report_waterproofing.html', i=i, total = total, sums = sums, form=form, data=data)
 
 @app.route("/report_waterproofing/<id>", methods=["GET", "POST"])
 #@login_required
