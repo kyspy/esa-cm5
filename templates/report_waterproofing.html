@@ -15,48 +15,54 @@
 {% endblock navbar %}
 
 {% block content %}
+<div class="container">
     <h2 class="page-header"> Waterproofing Installation Progress: East Cavern Walls as of {{i.date }}</h2>
-    <div class="row">
-    <p></p>
-    </div>
     <div class="row">
     <div class="col-lg-12">
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
         <script src="http://code.highcharts.com/highcharts.js"></script>
         <script src="{{ url_for('static', filename='js/chartkick.js') }}"></script>
         <center><b>East Bound Waterproofing (Pits &amp; Walls) Progress Curve (Percent)</b></center>
+        <center><b><font color='#3366cc'>Early Finish Date: 01/08/14</font> &bull; <font color='#003333'>Late Finish Date: 02/18/14</font></b></center>
         {% line_chart chart %}
     </div>
     </div>
+</div>
+    <div class="container">
     <div class="row">
-    <p><b>Early Finish Date:</b> 01/08/14 &bull; <b>Late Finish Date:</b> 02/18/14 &bull; <b>Data Date:</b> {{i.date}} &bull;
-    <b>Total PVC Planned</b> = 136,111 SF &bull; <b>Actual PVC To Date</b> = {% for t in total_all %} {{t.total_all}} {% endfor %} SF &bull; <b>Actual Work Days:</b> xx &bull;
-    <b>Percentage Complete to Date:</b> Baseline-Early: xx% &bull; Baseline-Late: xx% &bull;; Actual: xx% &bull;
-    <b>Baseline-Early Production Rate:</b> 6,815 SF/Day &bull; <b>Baseline-Late Production Rate:</b> 2,781 SF/Day &bull; <b>Actual Production Rate:</b> xxxx SF/Day</p>
-
+    <div class="col-lg-12">
+    <h3>Statistics:</h3>
+    <b>Total PVC Planned</b> = 136,111 SF &bull; <b>Actual PVC To Date</b> = {% for t in total_all %} {{t.total_all}} {% endfor %} SF <b>Actual Work Days:</b> xx <br>
+    <b>Percentage Complete to Date:</b> Baseline-Early: xx% &bull; Baseline-Late: xx% &bull;; Actual: xx% <br>
+    <b>Baseline-Early Production Rate:</b> 6,815 SF/Day &bull; <b>Baseline-Late Production Rate:</b> 2,781 SF/Day &bull; <b>Actual Production Rate:</b> xxxx SF/Day
     </div>
+    </div>
+    </div>
+    <div class="container">
     <div class="row">
     <div class="col-lg-6">
-    <div class="row">
-    <p><center><b>East Cavern - PVC Progress</b></center></p>
-    </div>
-    <div class="row" style="position: relative; left: 0; top: 0;">
+    <h3>East Cavern - PVC Progress</h3>
+    <div style="position: relative; left: 0; top: 0;">
           <center><img src="{{ '/static/uploads/' + i.bimimg_filename }}" width=100% style="position: relative; top: 0; left: 0;" /></center>
           <center><img src="{{ '/static/img/legend.jpg'}}" width=150px style="position: absolute; top: 0; left: 0;" /></center>
     </div>
     </div>
-        <div class="col-lg-6">
-                <p><center><b>{{ i.site_caption }}</b></center></p>
-          <center><img src="{{ '/static/uploads/' + i.siteimg_filename }}" width=100% /></center>
-
-        </div>
+    <div class="col-lg-6">
+        <h3>{{ i.site_caption }}</h3>
+    <center><img src="{{ '/static/uploads/' + i.siteimg_filename }}" width=100% /></center>
     </div>
+    </div>
+    </div>
+    <div class="container">
     <div class = 'row'>
     <div class="col-lg-6">
-        <p><b>Progress Summary:</b> {{ i.summary }}</p>
-        <p><b>Note:</b> {{ i.note}} </p>
-        </div>
-        <div class="col-lg-6">
+        <h3>Progress Summary:</h3>
+        <p>{{ i.summary }}</p>
+        <h3>Note:</h3>
+        <p>{{ i.note}}</p>
+    </div>
+    <div class="col-lg-6">
+        <h3>Quantities for this week:</h3>
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
@@ -99,6 +105,6 @@
             </table>
           </div>
        </div>
-
+    </div>
     </div>
 {% endblock content %}

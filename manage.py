@@ -18,21 +18,6 @@ manager.add_command('db', MigrateCommand)
 db.drop_all()
 db.create_all()
 
-class Daily(db.Model):
-    __tablename__ = 'daily'
-    id = db.Column(db.Integer, primary_key = True)
-    timestamp = db.Column(db.DateTime)
-    date = db.Column(db.Date)
-    img_filename = db.Column(db.String(200))
-    caption = db.Column(db.String(200))
-    area_id = db.Column(db.Integer, db.ForeignKey('area.id'))
-
-    def __init__(self, timestamp, date, img_filename, caption):
-        self.timestamp = timestamp
-        self.date = date
-        self.img_filename = img_filename
-        self.caption = caption
-
 class Baseline(db.Model):
     __tablename__ = 'baseline'
     id = db.Column(db.Integer, primary_key = True)
@@ -69,7 +54,6 @@ class Area(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     area = db.Column(db.String(20), unique = True)
     tracks = db.relationship('Track', backref='area', lazy='dynamic')
-    days = db.relationship('Daily', backref='area', lazy='dynamic')
 
     def __init__(self, area):
         self.area = area
@@ -128,22 +112,24 @@ class Material(db.Model):
 class Track(db.Model):
     __tablename__ = 'track'
     id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime)
     date = db.Column(db.Date)
     station_start = db.Column(db.Float)
     station_end = db.Column(db.Float)
     quantity = db.Column(db.Float)
+    img = db.Column(db.String(200))
+    caption = db.Column(db.String(200))
     area_id = db.Column(db.Integer, db.ForeignKey('area.id'))
     location_id = db.Column(db.Integer, db.ForeignKey('location.id'))
     shift_id = db.Column(db.Integer, db.ForeignKey('shift.id'))
     material_id = db.Column(db.Integer, db.ForeignKey('material.id'))
 
-    def __init__(self, timestamp, date, station_start, station_end, quantity):
-        self.timestamp = timestamp
+    def __init__(self, date, station_start, station_end, quantity, img, caption):
         self.date = date
         self.station_start = station_start
         self.station_end = station_end
         self.quantity = quantity
+        img = img
+        caption = caption
 
     def get_id(self):
         return unicode(self.id)

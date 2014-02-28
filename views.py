@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, flash, Response, request
 from cm5_app import app, db, login_manager
-from forms import TrackingForm, LoginForm, ReportForm, AddAreaForm, AddShiftForm, AddMaterialForm, DailyForm
-from models import Area, Shift, Material, User, Bimlink, Report, Track, Location, Baseline, Daily
+from forms import TrackingForm, LoginForm, ReportForm, AddAreaForm, AddShiftForm, AddMaterialForm, PreviousDateForm
+from models import Area, Shift, Material, User, Bimlink, Report, Track, Location, Baseline
 from datetime import datetime, timedelta
 from flask.ext.login import login_user, login_required, logout_user
 from sqlalchemy import func
@@ -12,10 +12,14 @@ import os
 from werkzeug.datastructures import Headers
 from werkzeug.utils import secure_filename
 from config import UPLOAD_FOLDER, ALLOWED_EXTENSIONS
-import pygal
-from pygal.style import Style
 import uuid
 import sx.pisa3 as pisa
+from pyvirtualdisplay import Display
+from selenium import webdriver
+
+'''
+FUNCTIONS***********************************************************************
+'''
 
 def flash_errors(form):
     for field, errors in form.errors.items():
@@ -51,22 +55,31 @@ def make_chart(i):
     late_list = []
     actual_list = []
     total = 0
+    date_temp=0
     for b in base:
         if b.early:
             early_list.append([b.date.strftime('%Y-%m-%d'), int(b.early)])
     for b in base:
         if b.late:
             late_list.append([b.date.strftime('%Y-%m-%d'), int(b.late)])
-    #actual faked for demo
+    #actual faked for demo there's some calc happening to convert LF to SF and get percentage
     for a in actual:
         if a.material.material == 'Fleece / Geo Drain' and a.date <= i.date:
-            total += int(a.quantity)
-            actual_list.append([a.date.strftime('%Y-%m-%d'), int(total/50)])
+                if a.date == date_temp:
+                    total += int(a.quantity)
+                else:
+                    total += int(a.quantity)
+                    actual_list.append([a.date.strftime('%Y-%m-%d'), int(total/50)])
+                    date_temp=a.date
 
     chart = [{'data': list(early_list),'name': 'Baseline-Early'}, {'data': list(late_list), 'name': 'Baseline-Late'},
         {'data': list(actual_list), 'name': 'Actual'}]
 
     return chart
+
+'''
+LOGIN/ LOGOUT*******************************************************************
+'''
 
 @login_manager.user_loader
 def load_user(email):
@@ -84,50 +97,118 @@ def login():
     return render_template('login.html', form=form)
 
 @app.route("/logout")
-#@login_required
+@login_required
 def logout():
     logout_user()
     return redirect(url_for('index'))
 
+'''
+INDEX***************************************************************************
+'''
+
+@app.route('/')
+@app.route('/index', methods=['GET', 'POST'])
+@login_required
+def index():
+    return render_template('dashboard.html')
+
+'''
+TESTING/ PROTOTPYE**************************************************************
+'''
+
 @app.route("/3d")
-#@login_required
+@login_required
 def threed():
     return render_template('3d.html')
 
-@app.route("/add_area", methods=["GET", "POST"])
+'''
+DAILY REPORT********************************************************************
+'''
+
+@app.route("/daily_report", methods=["GET", "POST"])
 #@login_required
-def add_area():
-    form = AddAreaForm()
+def daily_report():
+    form = TrackingForm()
+    previous_form = PreviousDateForm()
+    today = datetime.today().date()
+
+    if request.method == 'POST':
+        id_object = previous_form.previous_date.data
+        t = Track.query.filter_by(date = id_object.date).first()
+        id = t.id
+        return redirect(url_for('daily_report_by_day', id=id))
+
+    t = Track.query.order_by(Track.id.desc()).first()
+    if t.date < today:
+        entries = None
+    else:
+        entries = Track.query.join(Area).join(Shift).join(Material).join(Location).filter(Track.date == today).filter(Area.id == Track.area_id).filter(Shift.id == Track.shift_id).filter(Material.id == Track.material_id).filter(Location.id == Track.location_id).all()
+    return render_template('daily_report.html', form=form, entries=entries, today=today, previous_form=previous_form)
+
+@app.route("/daily_report/<id>/", methods=["GET", "POST"])
+#@login_required
+def daily_report_by_day(id):
+    form = TrackingForm()
+    previous_form = PreviousDateForm()
+
+    if request.method == 'POST':
+        id_object = previous_form.previous_date.data
+        t = Track.query.filter_by(date = id_object.date).first()
+        id = t.id
+        return redirect(url_for('daily_report_by_day', id=id))
+
+    t = Track.query.get(id)
+    today = t.date
+    entries = Track.query.join(Area).join(Shift).join(Material).join(Location).filter(Track.date == today).filter(Area.id == Track.area_id).filter(Shift.id == Track.shift_id).filter(Material.id == Track.material_id).filter(Location.id == Track.location_id).all()
+    return render_template('daily_report.html', form=form, entries=entries, today = today, previous_form=previous_form)
+
+@app.route("/add_item", methods=["POST"])
+@login_required
+def add_item():
+    form = TrackingForm()
     if form.validate_on_submit():
-        a = Area(area = form.area.data)
-        db.session.add(a)
-        l = Location(location = form.location.data)
-        db.session.add(l)
+        img_file = form.img.data
+        if img_file and allowed_file(img_file.filename):
+            img_filename = secure_filename(str(uuid.uuid4()) + img_file.filename)
+            img_file.save(os.path.join(app.config['UPLOAD_FOLDER'], img_filename))
+        else:
+            img_filename = ""
+
+        t = Track(date = form.date.data,
+        station_start = form.station_start.data,
+        station_end = form.station_end.data,
+        quantity = form.quanitity.data,
+        img = img_filename,
+        caption = form.caption.data)
+
+        db.session.add(t)
         db.session.commit()
-        return redirect(url_for('track_waterproofing'))
 
-@app.route("/add_shift", methods=["GET", "POST"])
-#@login_required
-def add_shift():
-        form = AddShiftForm()
-        if form.validate_on_submit():
-            s = Shift(shift = form.shift.data, start = form.start.data, end = form.end.data)
-            db.session.add(s)
-            db.session.commit()
-            return redirect(url_for('track_waterproofing'))
+        form_location = form.location.data
+        l = Location.query.filter_by(location = form_location.location).first()
+        l.tracks.append(t)
+        db.session.commit()
 
-@app.route("/add_material", methods=["GET", "POST"])
-#@login_required
-def add_material():
-        form = AddMaterialForm()
-        if form.validate_on_submit():
-            m = Material(material = form.material.data, unit = form.unit.data)
-            db.session.add(m)
-            db.session.commit()
-            return redirect(url_for('track_waterproofing'))
+        form_area = form.area.data
+        a = Area.query.filter(Area.area == form_area.area).first()
+        a.tracks.append(t)
+        db.session.commit()
+
+        form_material = form.material.data
+        m = Material.query.filter_by(material = form_material.material).first()
+        m.tracks.append(t)
+        db.session.commit()
+
+        return redirect(url_for('daily_report'))
+    return redirect(url_for('daily_report'))
+
+
+'''
+WEEKLY REPORT*******************************************************************
+'''
 
 @app.route("/create_waterproofing", methods=["GET", "POST"])
-#@login_required
+@login_required
 def create_waterproofing():
     #figure out how to resize the image
     form = ReportForm()
@@ -155,18 +236,10 @@ def create_waterproofing():
             id = r.id
             return redirect(url_for('edit_waterproofing', id=id))
     elif request.method == 'GET':
-        return render_template('create_waterproofing.html', form=form, data_type="Report", action="Add a")
-
-@app.route("/create_daily", methods=["GET", "POST"])
-#@login_required
-def create_daily():
-    #figure out how to resize the image
-    form = DailyForm()
-
-    return render_template('create_daily.html', form=form)
+        return render_template('create_waterproofing.html', form=form, data_type="Weekly Report", action="Add a")
 
 @app.route("/create_waterproofing/<id>/", methods=["GET", "POST"])
-#@login_required
+@login_required
 def edit_waterproofing(id):
     report = Report.query.get(id)
     form = ReportForm(obj=report)
@@ -198,7 +271,7 @@ def edit_waterproofing(id):
         return render_template('create_waterproofing.html', form=form, data_type=report.date, action="Edit")
 
 @app.route("/report_waterproofing", methods=["GET", "POST"])
-#@login_required
+@login_required
 def report_waterproofing():
     form = ReportForm()
     if request.method == 'POST':
@@ -215,7 +288,7 @@ def report_waterproofing():
     return render_template('report_waterproofing.html', i=i, total = total, sums = sums, form=form, chart=chart, total_all=total_all)
 
 @app.route("/report_waterproofing/<id>", methods=["GET", "POST"])
-#@login_required
+@login_required
 def re_report_waterproofing(id):
     i = Report.query.get(id)
     form = ReportForm()
@@ -231,14 +304,63 @@ def re_report_waterproofing(id):
     total_all= db.session.query(func.sum(Track.quantity).label('total_all')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between('2000-01-01', i.date))
     return render_template('report_waterproofing.html', i=i, total = total, sums = sums, form=form, chart=chart, total_all=total_all)
 
-@app.route('/')
-@app.route('/index', methods=['GET', 'POST'])
-#@login_required
-def index():
-    return render_template('dashboard.html')
+@app.route('/report_as_pdf/<id>', methods=['GET', 'POST'])
+@login_required
+def report_as_pdf(id):
+    response = Response()
+    response.status_code = 200
+
+    display = Display(visible=0, size=(800, 600))
+    display.start()
+
+    browser = webdriver.Firefox()
+    browser.save_screenshot('screenie.png')
+
+    browser.quit()
+    display.stop()
+
+    data = Report.query.get(id)
+    report_date_end = data.date + timedelta(days=-7)
+    sums = report_table(data.date, report_date_end)
+    chart = make_chart(data)
+
+    pdf = StringIO.StringIO()
+    pisa.CreatePDF(StringIO.StringIO(render_template('test_pdf.html', data=data, sums=sums, chart=chart).encode('utf-8')), pdf)
+    response.data = pdf.getvalue()
+
+    filename = 'ESA CM005 Waterproofing Report' + data.date.strftime('%Y-%m-%d') + '.pdf'
+    mimetype_tuple = mimetypes.guess_type(filename)
+
+    #HTTP headers for forcing file download
+    response_headers = Headers({
+            'Pragma': "public",  # required,
+            'Expires': '0',
+            'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+            'Cache-Control': 'private',  # required for certain browsers,
+            'Content-Type': mimetype_tuple[0],
+            'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+            'Content-Transfer-Encoding': 'binary',
+            'Content-Length': len(response.data)
+        })
+
+    if not mimetype_tuple[1] is None:
+        response.update({
+                'Content-Encoding': mimetype_tuple[1]
+            })
+
+    response.headers = response_headers
+
+    #as per jquery.fileDownload.js requirements
+    response.set_cookie('fileDownload', 'true', path='/')
+
+    return response
+
+'''
+ORIGINAL TRACKING***************************************************************
+'''
 
 @app.route('/track_waterproofing', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def track_waterproofing():
     form = TrackingForm()
     area_form = AddAreaForm()
@@ -246,11 +368,12 @@ def track_waterproofing():
     material_form = AddMaterialForm()
 
     if form.validate_on_submit():
-        t = Track(timestamp = datetime.utcnow(),
+        t = Track(
         date = form.date.data,
         station_start = form.station_start.data,
         station_end = form.station_end.data,
-        quantity = form.quantity.data)
+        quantity = form.quantity.data,
+        img = "", caption = "")
 
         form_location = form.location.data
         l = Location.query.filter_by(location = form_location.location).first()
@@ -292,59 +415,60 @@ def track_waterproofing():
     lines = Track.query.join(Area).join(Shift).join(Material).join(Location).filter(Area.id == Track.area_id).filter(Shift.id == Track.shift_id).filter(Material.id == Track.material_id).filter(Location.id == Track.location_id).order_by(Track.id.desc()).slice(0,5)
     return render_template('track_waterproofing.html', form=form, lines=lines, area_form=area_form, shift_form=shift_form, material_form=material_form)
 
+@app.route("/add_area", methods=["GET", "POST"])
+@login_required
+def add_area():
+    form = AddAreaForm()
+    if form.validate_on_submit():
+        a = Area.query.filter_by(area = form.area.data).first()
+        if a == None:
+            a = Area(area = form.area.data)
+            db.session.add(a)
+            db.session.commit()
+
+        l = Location.query.filter_by(location = form.location.data).first()
+        if l == None:
+            l = Location(location = form.location.data)
+            db.session.add(l)
+            db.session.commit()
+        return redirect(url_for('track_waterproofing'))
+
+@app.route("/add_shift", methods=["GET", "POST"])
+@login_required
+def add_shift():
+        form = AddShiftForm()
+        if form.validate_on_submit():
+            s = Shift(shift = form.shift.data, start = form.start.data, end = form.end.data)
+            db.session.add(s)
+            db.session.commit()
+            return redirect(url_for('track_waterproofing'))
+
+@app.route("/add_material", methods=["GET", "POST"])
+@login_required
+def add_material():
+        form = AddMaterialForm()
+        if form.validate_on_submit():
+            m = Material.query.filter_by(material = form.material.data).first()
+            if m == None:
+                m = Material(material = form.material.data, unit = form.unit.data)
+                db.session.add(m)
+                db.session.commit()
+            return redirect(url_for('track_waterproofing'))
+
 @app.route('/delete_entry', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def delete_entry():
     entry = Track.query.order_by(Track.id.desc()).first()
     db.session.delete(entry)
     db.session.commit()
     return redirect(url_for('track_waterproofing'))
 
-@app.route('/report_as_pdf/<id>', methods=['GET', 'POST'])
-#@login_required
-def report_as_pdf(id):
-    response = Response()
-    response.status_code = 200
-
-    data = Report.query.get(id)
-    report_date_end = data.date + timedelta(days=-7)
-    sums = report_table(data.date, report_date_end)
-    chart = make_chart(data)
-
-    pdf = StringIO.StringIO()
-    pisa.CreatePDF(StringIO.StringIO(render_template('test_pdf.html', data=data, sums=sums, chart=chart).encode('utf-8')), pdf)
-    response.data = pdf.getvalue()
-
-    filename = 'ESA CM005 Waterproofing Report' + data.date.strftime('%Y-%m-%d') + '.pdf'
-    mimetype_tuple = mimetypes.guess_type(filename)
-
-    #HTTP headers for forcing file download
-    response_headers = Headers({
-            'Pragma': "public",  # required,
-            'Expires': '0',
-            'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
-            'Cache-Control': 'private',  # required for certain browsers,
-            'Content-Type': mimetype_tuple[0],
-            'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
-            'Content-Transfer-Encoding': 'binary',
-            'Content-Length': len(response.data)
-        })
-
-    if not mimetype_tuple[1] is None:
-        response.update({
-                'Content-Encoding': mimetype_tuple[1]
-            })
-
-    response.headers = response_headers
-
-    #as per jquery.fileDownload.js requirements
-    response.set_cookie('fileDownload', 'true', path='/')
-
-    return response
-
+'''
+EXCEL DOWNLOAD******************************************************************
+'''
 
 @app.route('/download_all_excel', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def download_all_excel():
     response = Response()
     response.status_code = 200
@@ -390,7 +514,6 @@ def download_all_excel():
         sheet1.row(i).write(13,li.foreman)
         sheet1.row(i).write(14,li.supervisor)
 
-
     output = StringIO.StringIO()
     book.save(output)
     response.data = output.getvalue()
@@ -423,7 +546,7 @@ def download_all_excel():
     return response
 
 @app.route('/download_bim_excel', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def download_bim_excel():
     response = Response()
     response.status_code = 200

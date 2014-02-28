@@ -1,8 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
         <h2 class="page-header">Track: Waterproofing</h2>
-
-            <form method="POST" action="" class="form-inline">
+            <form method="POST" action="" enctype="multipart/form-data"  class="form-inline">
             {{ form.hidden_tag() }}
             <p>
             {% call macro.form_field(form.date) %} {% endcall %}

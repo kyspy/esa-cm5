@@ -1,0 +1,106 @@
+{% extends "layout.html" %}
+
+{% block head %}
+    <link rel="stylesheet" href="../../static/css/bootstrap.css">
+    <link rel="stylesheet" href="../../static/css/bootstrap-theme.css">
+    <link rel="stylesheet" href="../../static/css/custom.css">
+{% endblock head %}
+
+
+{% block navbar %}
+
+ <form class="navbar-form navbar-left" method="POST" role="form">
+    <div class="form-group">
+    {{ form.hidden_tag() }}
+    {% call macro.form_field(previous_form.previous_date) %} {% endcall %}
+    </div>
+    <input type="submit" name="action" value="View Report" class="btn btn-default">
+    </form>
+
+    <a href="" class="navbar-form navbar-left"><button type="button" class="btn btn-default">Make PDF</button></a>
+
+{% endblock navbar %}
+
+{% block content %}
+        <h2 class="page-header">Daily Report for {{today}}</h2>
+        <div class="container">
+        <p>
+        Hint: Test data in 2/14/2014
+        </p>
+        <p>
+        <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#add_item_form">Add to Report</button>
+        </p>
+        </div>
+        <div class="container">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <tbody>
+              {%if entries %}
+               {% for entry in entries %}
+                <tr>
+                  <td>
+                  {% if entry.img %}
+                  <img src="{{ '/static/uploads/' + entry.img}}" height=150px />
+                  {% endif %}
+                  <b>Date:</b> {{entry.date}}<br>
+                  <b>Area:</b> {{entry.area.area}}<br>
+                  <b>Location:</b> {{entry.location.location}}<br>
+                  <b>Station Start:</b> {{entry.station_start}}<br>
+                  <b>Station End:</b> {{entry.station_end}}<br>
+                  <b>Quantity:</b> {{entry.quantity}}<br>
+                  <b>Material:</b> {{entry.material.material}}<br>
+                  <b>Notes:</b> {{entry.caption}}
+                  </td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+            </table>
+          </div>
+          </div>
+
+    <div class="modal fade" id="add_item_form">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Add to Report</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                <div class="col-lg-3">
+                <form action="/add_item" method="POST" enctype="multipart/form-data" class="form-default">
+                {{ form.hidden_tag() }}
+                {% call macro.form_field(form.date) %} {% endcall %}
+                <div class="input-group input-group">
+                <span class="input-group-addon">Area</span>
+                {% call macro.form_field(form.area) %} {% endcall %}
+                {% call macro.form_field(form.location) %} {% endcall %}
+                </div>
+                <p>
+                <div class="input-group input-group">
+                <span class="input-group-addon">Material: </span>
+                {% call macro.form_field(form.material) %} {% endcall %}
+                </div>
+                </p>
+                {% call macro.form_field(form.station_start) %} {% endcall %}
+                {% call macro.form_field(form.station_end) %} {% endcall %}
+                {% call macro.form_field(form.quantity) %} {% endcall %}
+                {% call macro.form_field(form.img) %} {% endcall %}
+                {% call macro.form_field(form.caption) %} {% endcall %}
+                {% for field, errors in form.errors.iteritems() %}
+<div class="alert alert-error">
+    {{ field }}: {{ ', '.join(errors) }}
+</div>
+{% endfor %}
+                <input type="submit" value="Submit" class="btn btn-primary">
+                </form>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+{% endblock content %}
+
+

@@ -1,6 +1,6 @@
 from cm5_app import db
 from xlrd import open_workbook
-from models import Track, Area, Material, Shift, Location
+from models import Area, Location, Baseline, Report, Bimlink, Track, Material, Shift
 from datetime import datetime
 
 def UploadWaterproofing():
@@ -77,4 +77,76 @@ def UploadWaterproofing():
         db.session.add(t)
         db.session.commit()
 
+def UploadRevitID():
+    book = open_workbook('static/excel/Revit_ID.xls')
+    sheet = book.sheet_by_index(0)
+    Bimlink.query.delete()
+
+    for x in range(0, sheet.nrows):
+        cell_revit_id = sheet.cell(x,0).value
+        cell_excel_id = sheet.cell(x,1).value
+        bimlink = Bimlink(revit_id = int(cell_revit_id), excel_id = cell_excel_id)
+        db.session.add(bimlink)
+        db.session.commit()
+
+def UploadReport():
+    Report.query.delete()
+
+    book = open_workbook('static/excel/report_data.xls')
+    sheet = book.sheet_by_index(0)
+
+    for x in range(0, sheet.nrows):
+        date = datetime.strptime(sheet.cell(x,0).value, "%m-%d-%Y")
+        bimimg_filename = sheet.cell(x,1).value
+        siteimg_filename = sheet.cell(x,2).value
+        site_caption = sheet.cell(x,3).value
+        summary = sheet.cell(x,4).value
+        note = sheet.cell(x,5).value
+
+        r = Report(bimimg_filename = bimimg_filename, siteimg_filename = siteimg_filename, site_caption = site_caption, date = date, note=note, summary=summary)
+
+        db.session.add(r)
+        db.session.commit()
+
+def UploadBaseline():
+    Baseline.query.delete()
+
+    book = open_workbook('static/excel/Baseline_Early_Late.xls')
+    sheet = book.sheet_by_index(0)
+
+    for x in range(0, sheet.nrows):
+        date = datetime.strptime(sheet.cell(x,0).value, "%Y-%m-%d")
+        early = sheet.cell(x,1).value
+        late = sheet.cell(x,2).value
+
+        b = Baseline(date = date, early=early, late=late)
+
+        db.session.add(b)
+        db.session.commit()
+
+def UploadAreas():
+
+    book = open_workbook('static/excel/areas.xls')
+    sheet = book.sheet_by_index(0)
+
+    for x in range(0, sheet.nrows):
+        area= sheet.cell(x,0).value
+        location= sheet.cell(x,1).value
+
+        a = Area.query.filter_by(area = area).first()
+        if a == None:
+            a = Area(area = area)
+            db.session.add(a)
+            db.session.commit()
+
+        l = Location.query.filter_by(location = location).first()
+        if l == None:
+            l = Location(location = location)
+            db.session.add(l)
+            db.session.commit()
+
 UploadWaterproofing()
+UploadReport()
+UploadAreas()
+UploadBaseline()
+UploadRevitID()
