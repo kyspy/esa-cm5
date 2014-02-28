@@ -31,7 +31,6 @@ class TrackingForm(Form):
     caption = TextAreaField('Description')
     area = QuerySelectField(query_factory=getAllAreas, get_label='area')
     location = QuerySelectField(query_factory=getAllLocations, get_label='location')
-    shift = QuerySelectField(query_factory=getAllShifts, get_label='shift')
     material = QuerySelectField(query_factory=getAllMaterials, get_label='material')
 
 class PreviousDateForm(Form):

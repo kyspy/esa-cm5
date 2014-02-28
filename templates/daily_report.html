@@ -17,7 +17,7 @@
     <input type="submit" name="action" value="View Report" class="btn btn-default">
     </form>
 
-    <a href="" class="navbar-form navbar-left"><button type="button" class="btn btn-default">Make PDF</button></a>
+    <a href="{{ url_for('daily_report_as_pdf', id=id) }}" class="navbar-form navbar-left"><button type="button" class="btn btn-default">Make PDF</button></a>
 
 {% endblock navbar %}
 
@@ -33,15 +33,17 @@
         </div>
         <div class="container">
           <div class="table-responsive">
-            <table class="table table-striped">
+            <table class="table">
               <tbody>
               {%if entries %}
                {% for entry in entries %}
                 <tr>
-                  <td>
                   {% if entry.img %}
-                  <img src="{{ '/static/uploads/' + entry.img}}" height=150px />
-                  {% endif %}
+                  <td width=300px>
+                  <img src="{{ '/static/uploads/' + entry.img}}" width=400px /><br>
+                  </td>
+                  <td>
+                  <left>
                   <b>Date:</b> {{entry.date}}<br>
                   <b>Area:</b> {{entry.area.area}}<br>
                   <b>Location:</b> {{entry.location.location}}<br>
@@ -50,7 +52,23 @@
                   <b>Quantity:</b> {{entry.quantity}}<br>
                   <b>Material:</b> {{entry.material.material}}<br>
                   <b>Notes:</b> {{entry.caption}}
+                  </left>
                   </td>
+                  {% else %}
+                  <td>
+                  <left>
+                  <b>Date:</b> {{entry.date}}<br>
+                  <b>Area:</b> {{entry.area.area}}<br>
+                  <b>Location:</b> {{entry.location.location}}<br>
+                  <b>Station Start:</b> {{entry.station_start}}<br>
+                  <b>Station End:</b> {{entry.station_end}}<br>
+                  <b>Quantity:</b> {{entry.quantity}}<br>
+                  <b>Material:</b> {{entry.material.material}}<br>
+                  <b>Notes:</b> {{entry.caption}}
+                  </left>
+                  </td>
+                  <td></td>
+                  {% endif %}
                 </tr>
                 {% endfor %}
                 {% endif %}

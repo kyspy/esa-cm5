@@ -1,5 +1,6 @@
 from flask import render_template, redirect, url_for, flash, Response, request
 from cm5_app import app, db, login_manager
+from config import basedir
 from forms import TrackingForm, LoginForm, ReportForm, AddAreaForm, AddShiftForm, AddMaterialForm, PreviousDateForm
 from models import Area, Shift, Material, User, Bimlink, Report, Track, Location, Baseline
 from datetime import datetime, timedelta
@@ -139,11 +140,14 @@ def daily_report():
         return redirect(url_for('daily_report_by_day', id=id))
 
     t = Track.query.order_by(Track.id.desc()).first()
+
     if t.date < today:
         entries = None
+        id=0
     else:
-        entries = Track.query.join(Area).join(Shift).join(Material).join(Location).filter(Track.date == today).filter(Area.id == Track.area_id).filter(Shift.id == Track.shift_id).filter(Material.id == Track.material_id).filter(Location.id == Track.location_id).all()
-    return render_template('daily_report.html', form=form, entries=entries, today=today, previous_form=previous_form)
+        id = t.id
+        entries = Track.query.join(Area).join(Material).join(Location).filter(Track.date == today).filter(Area.id == Track.area_id).filter(Material.id == Track.material_id).filter(Location.id == Track.location_id).all()
+    return render_template('daily_report.html', form=form, entries=entries, today=today, previous_form=previous_form, id=id)
 
 @app.route("/daily_report/<id>/", methods=["GET", "POST"])
 #@login_required
@@ -159,8 +163,8 @@ def daily_report_by_day(id):
 
     t = Track.query.get(id)
     today = t.date
-    entries = Track.query.join(Area).join(Shift).join(Material).join(Location).filter(Track.date == today).filter(Area.id == Track.area_id).filter(Shift.id == Track.shift_id).filter(Material.id == Track.material_id).filter(Location.id == Track.location_id).all()
-    return render_template('daily_report.html', form=form, entries=entries, today = today, previous_form=previous_form)
+    entries = Track.query.join(Area).join(Material).join(Location).filter(Track.date == today).filter(Area.id == Track.area_id).filter(Material.id == Track.material_id).filter(Location.id == Track.location_id).all()
+    return render_template('daily_report.html', form=form, entries=entries, today = today, previous_form=previous_form, id=id)
 
 @app.route("/add_item", methods=["POST"])
 @login_required
@@ -177,31 +181,69 @@ def add_item():
         t = Track(date = form.date.data,
         station_start = form.station_start.data,
         station_end = form.station_end.data,
-        quantity = form.quanitity.data,
+        quantity = form.quantity.data,
         img = img_filename,
         caption = form.caption.data)
 
         db.session.add(t)
-        db.session.commit()
 
         form_location = form.location.data
         l = Location.query.filter_by(location = form_location.location).first()
         l.tracks.append(t)
-        db.session.commit()
 
         form_area = form.area.data
         a = Area.query.filter(Area.area == form_area.area).first()
         a.tracks.append(t)
-        db.session.commit()
 
         form_material = form.material.data
         m = Material.query.filter_by(material = form_material.material).first()
         m.tracks.append(t)
+
         db.session.commit()
 
         return redirect(url_for('daily_report'))
-    return redirect(url_for('daily_report'))
+    return str(form.errors)
 
+@app.route('/daily_report_as_pdf/<id>', methods=['GET', 'POST'])
+@login_required
+def daily_report_as_pdf(id):
+    response = Response()
+    response.status_code = 200
+
+    t = Track.query.get(id)
+    today = t.date
+    entries = Track.query.join(Area).join(Material).join(Location).filter(Track.date == today).filter(Area.id == Track.area_id).filter(Material.id == Track.material_id).filter(Location.id == Track.location_id).all()
+
+    pdf = StringIO.StringIO()
+    pisa.CreatePDF(StringIO.StringIO(render_template('daily_report_pdf.html', entries=entries, today=today).encode('utf-8')), pdf)
+    response.data = pdf.getvalue()
+
+    filename = 'ESA CM005 Daily Report' + t.date.strftime('%Y-%m-%d') + '.pdf'
+    mimetype_tuple = mimetypes.guess_type(filename)
+
+    #HTTP headers for forcing file download
+    response_headers = Headers({
+            'Pragma': "public",  # required,
+            'Expires': '0',
+            'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+            'Cache-Control': 'private',  # required for certain browsers,
+            'Content-Type': mimetype_tuple[0],
+            'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+            'Content-Transfer-Encoding': 'binary',
+            'Content-Length': len(response.data)
+        })
+
+    if not mimetype_tuple[1] is None:
+        response.update({
+                'Content-Encoding': mimetype_tuple[1]
+            })
+
+    response.headers = response_headers
+
+    #as per jquery.fileDownload.js requirements
+    response.set_cookie('fileDownload', 'true', path='/')
+
+    return response
 
 '''
 WEEKLY REPORT*******************************************************************
@@ -304,20 +346,15 @@ def re_report_waterproofing(id):
     total_all= db.session.query(func.sum(Track.quantity).label('total_all')).join(Area).join(Location).join(Material).filter(Area.id == Track.area_id).filter(Location.id == Track.location_id).filter(Material.id == Track.material_id).filter(Track.date.between('2000-01-01', i.date))
     return render_template('report_waterproofing.html', i=i, total = total, sums = sums, form=form, chart=chart, total_all=total_all)
 
+@app.route('/report_chart')
+def report_chart():
+    return render_template('report_chart.html')
+
 @app.route('/report_as_pdf/<id>', methods=['GET', 'POST'])
 @login_required
 def report_as_pdf(id):
     response = Response()
     response.status_code = 200
-
-    display = Display(visible=0, size=(800, 600))
-    display.start()
-
-    browser = webdriver.Firefox()
-    browser.save_screenshot('screenie.png')
-
-    browser.quit()
-    display.stop()
 
     data = Report.query.get(id)
     report_date_end = data.date + timedelta(days=-7)

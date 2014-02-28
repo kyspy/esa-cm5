@@ -1,0 +1,65 @@
+<html>
+    <head>
+    <style type="text/css">
+        @page {
+              size: letter;
+              margin: 1cm;
+              margin-bottom: 2.5cm;
+         }
+         table{border-collapse:collapse;}
+         tr, td, th {margin:0;border:0;padding:4;}
+         tr.blue {background-color:#355190;margin:0;border:0;padding:0;height=20px;}
+     </style>
+    </head>
+    <body>
+    {% block body %}
+        <table>
+            <tr height=40px>
+                <td><img src="{{ url_for('static', filename='img/MTA.jpg', _external=True) }}" height=40 align=left /></td>
+                <td><img src="{{ url_for('static', filename='img/LIRR.jpg', _external=True) }}" height=40 align=right /></td>
+            </tr>
+        </table>
+        <table>
+        <tr height=40px class="blue">
+            <td><font size="20px" align="left" color="white">ESA CM005 Daily Report for {{today}}</font></td>
+        </tr>
+        </table>
+
+            <table>
+              {%if entries %}
+               {% for entry in entries %}
+                <tr>
+                  {% if entry.img %}
+                  <td valign="top" width=400px>
+                  <img src="{{ url_for('static', filename='uploads/' + entry.img, _external=True) }}" width=400px /><br>
+                  </td>
+                  <td valign="top", align="left">
+                  <b>Date:</b> {{entry.date}}<br>
+                  <b>Area:</b> {{entry.area.area}}<br>
+                  <b>Location:</b> {{entry.location.location}}<br>
+                  <b>Station Start:</b> {{entry.station_start}}<br>
+                  <b>Station End:</b> {{entry.station_end}}<br>
+                  <b>Quantity:</b> {{entry.quantity}}<br>
+                  <b>Material:</b> {{entry.material.material}}<br>
+                  <b>Notes:</b> {{entry.caption}}
+                  </td>
+                  {% else %}
+                  <td valign="top">
+                  <b>Date:</b> {{entry.date}}<br>
+                  <b>Area:</b> {{entry.area.area}}<br>
+                  <b>Location:</b> {{entry.location.location}}<br>
+                  <b>Station Start:</b> {{entry.station_start}}<br>
+                  <b>Station End:</b> {{entry.station_end}}<br>
+                  <b>Quantity:</b> {{entry.quantity}}<br>
+                  <b>Material:</b> {{entry.material.material}}<br>
+                  <b>Notes:</b> {{entry.caption}}
+                  </td>
+                  <td></td>
+                  {% endif %}
+                </tr>
+                {% endfor %}
+                {% endif %}
+            </table>
+          {% endblock body %}
+    </body>
+</html>
