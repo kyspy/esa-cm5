@@ -127,7 +127,7 @@ DAILY REPORT********************************************************************
 '''
 
 @app.route("/daily_report", methods=["GET", "POST"])
-#@login_required
+@login_required
 def daily_report():
     form = TrackingForm()
     previous_form = PreviousDateForm()
@@ -150,7 +150,7 @@ def daily_report():
     return render_template('daily_report.html', form=form, entries=entries, today=today, previous_form=previous_form, id=id)
 
 @app.route("/daily_report/<id>/", methods=["GET", "POST"])
-#@login_required
+@login_required
 def daily_report_by_day(id):
     form = TrackingForm()
     previous_form = PreviousDateForm()
@@ -459,13 +459,13 @@ def add_area():
     if form.validate_on_submit():
         a = Area.query.filter_by(area = form.area.data).first()
         if a == None:
-            a = Area(area = form.area.data)
+            a = Area(area = form.area.data.upper())
             db.session.add(a)
             db.session.commit()
 
         l = Location.query.filter_by(location = form.location.data).first()
         if l == None:
-            l = Location(location = form.location.data)
+            l = Location(location = form.location.data.upper())
             db.session.add(l)
             db.session.commit()
         return redirect(url_for('track_waterproofing'))
@@ -514,42 +514,34 @@ def download_all_excel():
 
     sheet1 = book.add_sheet('Sheet 1')
 
-    lines = Track.query.join(Area).join(Shift).join(Material).join(Location).filter(Area.id == Track.area_id).filter(Shift.id == Track.shift_id).filter(Material.id == Track.material_id).filter(Location.id == Track.location_id).all()
+    lines = Track.query.join(Area).join(Material).join(Location).filter(Area.id == Track.area_id).filter(Material.id == Track.material_id).filter(Location.id == Track.location_id).all()
     i = 0
 
     sheet1.row(i).write(0,'ID')
     sheet1.row(i).write(1,'Date')
-    sheet1.row(i).write(2,'Shift')
-    sheet1.row(i).write(3,'Shift Start')
-    sheet1.row(i).write(4,'Shift End')
-    sheet1.row(i).write(5,'Area')
-    sheet1.row(i).write(6,'Location')
-    sheet1.row(i).write(7,'Station Start')
-    sheet1.row(i).write(8,'Station End')
-    sheet1.row(i).write(9,'Quantity')
-    sheet1.row(i).write(10, 'Material')
-    sheet1.row(i).write(11, 'Unit')
-    sheet1.row(i).write(12, 'Laborer')
-    sheet1.row(i).write(13, 'Foreman')
-    sheet1.row(i).write(14, 'Super')
+    sheet1.row(i).write(2,'Area')
+    sheet1.row(i).write(3,'Location')
+    sheet1.row(i).write(4,'Station Start')
+    sheet1.row(i).write(5,'Station End')
+    sheet1.row(i).write(6,'Quantity')
+    sheet1.row(i).write(7, 'Material')
+    sheet1.row(i).write(8, 'Unit')
+    sheet1.row(i).write(9, 'Img')
+    sheet1.row(i).write(10, 'Caption')
 
     for li in lines:
         i += 1
         sheet1.row(i).write(0,li.id)
         sheet1.row(i).write(1,str(li.date))
-        sheet1.row(i).write(2,li.shift.shift)
-        sheet1.row(i).write(3,li.shift.start)
-        sheet1.row(i).write(4,li.shift.end)
-        sheet1.row(i).write(5,li.area.area)
-        sheet1.row(i).write(6,li.location.location)
-        sheet1.row(i).write(7,li.station_start)
-        sheet1.row(i).write(8,li.station_end)
-        sheet1.row(i).write(9,li.quantity)
-        sheet1.row(i).write(10,li.material.material)
-        sheet1.row(i).write(11,li.material.unit)
-        sheet1.row(i).write(12,li.laborer)
-        sheet1.row(i).write(13,li.foreman)
-        sheet1.row(i).write(14,li.supervisor)
+        sheet1.row(i).write(2,li.area.area)
+        sheet1.row(i).write(3,li.location.location)
+        sheet1.row(i).write(4,li.station_start)
+        sheet1.row(i).write(5,li.station_end)
+        sheet1.row(i).write(6,li.quantity)
+        sheet1.row(i).write(7,li.material.material)
+        sheet1.row(i).write(8,li.material.unit)
+        sheet1.row(i).write(9,li.img)
+        sheet1.row(i).write(10,li.caption)
 
     output = StringIO.StringIO()
     book.save(output)
@@ -593,26 +585,26 @@ def download_bim_excel():
     book = xlwt.Workbook()
     sheet1 = book.add_sheet('BimLink ' + date)
 
-    lines = Track.query.join(Area).join(Shift).join(Material).join(Location).filter(Area.id == Track.area_id).filter(Shift.id == Track.shift_id).filter(Material.id == Track.material_id).filter(Location.id == Track.location_id).all()
+    lines = Track.query.join(Area).join(Material).join(Location).filter(Area.id == Track.area_id).filter(Material.id == Track.material_id).filter(Location.id == Track.location_id).all()
     i = 0
 
     for li in lines:
         start = (int(round(li.station_start*10)*10))
         end = (int(round(li.station_end*10)*10))
-        if end > start:
-            num = (end - start)/10
-            for n in range(0, num):
-                s = start + n*10
-                e = s+10
-                excel_id = li.area.area + '_' + li.location.location + '_' + str(s) + '_' + str(e)
-                revit_id = Bimlink.query.filter_by(excel_id = excel_id).first()
-                if revit_id:
-                    sheet1.row(i).write(0, revit_id.revit_id)
-                    sheet1.row(i).write(1,excel_id)
-                    sheet1.row(i).write(2,'Complete')
-                    sheet1.row(i).write(3,str(li.date))
-                    sheet1.row(i).write(4,li.material.material)
-                i += 1
+        #if end > start:
+        num = (end - start)/10
+        for n in range(0, num):
+            s = start + n*10
+            e = s+10
+            excel_id = li.area.area + '_' + li.location.location + '_' + str(s) + '_' + str(e)
+            revit_id = Bimlink.query.filter_by(excel_id = excel_id).first()
+            if revit_id:
+                sheet1.row(i).write(0, revit_id.revit_id)
+                sheet1.row(i).write(1,excel_id)
+                sheet1.row(i).write(2,'Complete')
+                sheet1.row(i).write(3,str(li.date))
+                sheet1.row(i).write(4,li.material.material)
+            i += 1
 
     output = StringIO.StringIO()
     book.save(output)

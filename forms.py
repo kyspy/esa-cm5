@@ -3,18 +3,19 @@ from wtforms import FloatField, DateField, StringField, IntegerField, TextField,
 from wtforms.validators import Required
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from models import Area, Shift, Material, Location, Report, Track
+from datetime import datetime
 
 def getAllAreas():
-    return Area.query
+    return Area.query.order_by(Area.area).all()
 
 def getAllLocations():
-    return Location.query
+    return Location.query.order_by(Location.location).all()
 
 def getAllShifts():
     return Shift.query
 
 def getAllMaterials():
-    return Material.query
+    return Material.query.order_by(Material.material).all()
 
 def getAllReportDates():
     return Report.query.order_by(Report.id.desc())
@@ -23,12 +24,12 @@ def getAllTrackedDates():
     return Track.query.order_by(Track.id.desc()).group_by(Track.date)
 
 class TrackingForm(Form):
-    date = DateField('Date (MM/DD/YYYY)', validators=[Required()], format='%m/%d/%Y')
-    station_start = FloatField('Starting Station (XX.XX)')
-    station_end = FloatField('Ending Station (XX.XX)')
-    quantity = FloatField('Quantity')
+    date = DateField('Date (MM/DD/YYYY)', validators=[Required()], format='%m/%d/%Y', default=datetime.now().date())
+    station_start = FloatField('Starting Station (XX.XX)', default=0)
+    station_end = FloatField('Ending Station (XX.XX)', default=0)
+    quantity = FloatField('Quantity', default=0)
     img = FileField('Image')
-    caption = TextAreaField('Description')
+    caption = TextAreaField('Description', default="")
     area = QuerySelectField(query_factory=getAllAreas, get_label='area')
     location = QuerySelectField(query_factory=getAllLocations, get_label='location')
     material = QuerySelectField(query_factory=getAllMaterials, get_label='material')
