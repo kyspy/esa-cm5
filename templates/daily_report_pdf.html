@@ -6,9 +6,10 @@
               margin: 1cm;
               margin-bottom: 2.5cm;
          }
-         table{border-collapse:collapse;}
-         tr, td, th {margin:0;border:0;padding:4;}
-         tr.blue {background-color:#355190;margin:0;border:0;padding:0;height=20px;}
+         tr, td, th {margin:0;padding:2;}
+         tr.blue {background-color:#355190;margin:0;border:0;padding:0;}
+         tr.bb {border-bottom: 1px solid black;}
+         font.text {font-size: 10;}
      </style>
     </head>
     <body>
@@ -20,20 +21,20 @@
             </tr>
         </table>
         <table>
-        <tr height=40px class="blue">
-            <td><font size="20px" align="left" color="white">ESA CM005 Daily Report for {{today}}</font></td>
+        <tr height="30" class="blue">
+            <td><font size="20px" align="left" color="white"><b>ESA CM005 Daily Report for {{today}}</b></font></td>
         </tr>
         </table>
-
-            <table>
+        <table>
               {%if entries %}
                {% for entry in entries %}
-                <tr>
+                <tr class="bb">
                   {% if entry.img %}
-                  <td valign="top" width=400px>
-                  <img src="{{ url_for('static', filename='uploads/' + entry.img, _external=True) }}" width=400px /><br>
+                  <td valign="top">
+                  <img src="{{ url_for('static', filename='uploads/' + entry.img, _external=True) }}" width=400>
                   </td>
                   <td valign="top", align="left">
+                  <font class="text">
                   <b>Date:</b> {{entry.date}}<br>
                   <b>Area:</b> {{entry.area.area}}<br>
                   <b>Location:</b> {{entry.location.location}}<br>
@@ -42,9 +43,11 @@
                   <b>Quantity:</b> {{entry.quantity}}<br>
                   <b>Material:</b> {{entry.material.material}}<br>
                   <b>Notes:</b> {{entry.caption}}
+                  </font>
                   </td>
                   {% else %}
                   <td valign="top">
+                  <font class="text">
                   <b>Date:</b> {{entry.date}}<br>
                   <b>Area:</b> {{entry.area.area}}<br>
                   <b>Location:</b> {{entry.location.location}}<br>
@@ -53,6 +56,7 @@
                   <b>Quantity:</b> {{entry.quantity}}<br>
                   <b>Material:</b> {{entry.material.material}}<br>
                   <b>Notes:</b> {{entry.caption}}
+                  </font>
                   </td>
                   <td></td>
                   {% endif %}

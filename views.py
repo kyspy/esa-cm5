@@ -131,23 +131,56 @@ DAILY REPORT********************************************************************
 def daily_report():
     form = TrackingForm()
     previous_form = PreviousDateForm()
-    today = datetime.today().date()
 
     if request.method == 'POST':
-        id_object = previous_form.previous_date.data
-        t = Track.query.filter_by(date = id_object.date).first()
-        id = t.id
-        return redirect(url_for('daily_report_by_day', id=id))
+        if request.form['action'] == 'View Previous':
+            id_object = previous_form.previous_date.data
+            t = Track.query.filter_by(date = id_object.date).first()
+            id = t.id
+            return redirect(url_for('daily_report_by_day', id=id))
+
+    if request.method == 'POST':
+        if request.form['action'] == 'Submit':
+            img_file = form.img.data
+            if img_file and allowed_file(img_file.filename):
+                img_filename = secure_filename(str(uuid.uuid4()) + img_file.filename)
+                img_file.save(os.path.join(app.config['UPLOAD_FOLDER'], img_filename))
+            else:
+                img_filename = ""
+
+            t = Track(date = form.date.data,
+            station_start = form.station_start.data,
+            station_end = form.station_end.data,
+            quantity = form.quantity.data,
+            img = img_filename,
+            caption = form.caption.data)
+
+            db.session.add(t)
+
+            form_location = form.location.data
+            l = Location.query.filter_by(location = form_location.location).first()
+            l.tracks.append(t)
+
+            form_area = form.area.data
+            a = Area.query.filter(Area.area == form_area.area).first()
+            a.tracks.append(t)
+
+            form_material = form.material.data
+            m = Material.query.filter_by(material = form_material.material).first()
+            m.tracks.append(t)
+
+            db.session.commit()
+
+            return redirect(url_for('daily_report'))
 
     t = Track.query.order_by(Track.id.desc()).first()
+    today = t.date
 
-    if t.date < today:
-        entries = None
-        id=0
-    else:
-        id = t.id
-        entries = Track.query.join(Area).join(Material).join(Location).filter(Track.date == today).filter(Area.id == Track.area_id).filter(Material.id == Track.material_id).filter(Location.id == Track.location_id).all()
-    return render_template('daily_report.html', form=form, entries=entries, today=today, previous_form=previous_form, id=id)
+    id = t.id
+    id2=t.id
+    entries = Track.query.join(Area).join(Material).join(Location).filter(Track.date == today).filter(Area.id == Track.area_id).filter(Material.id == Track.material_id).filter(Location.id == Track.location_id).all()
+
+    return render_template('daily_report.html', form=form, entries=entries, today=today, previous_form=previous_form, id=id, id2=id2)
 
 @app.route("/daily_report/<id>/", methods=["GET", "POST"])
 @login_required
@@ -163,46 +196,10 @@ def daily_report_by_day(id):
 
     t = Track.query.get(id)
     today = t.date
+    id2 = t.id
+
     entries = Track.query.join(Area).join(Material).join(Location).filter(Track.date == today).filter(Area.id == Track.area_id).filter(Material.id == Track.material_id).filter(Location.id == Track.location_id).all()
-    return render_template('daily_report.html', form=form, entries=entries, today = today, previous_form=previous_form, id=id)
-
-@app.route("/add_item", methods=["POST"])
-@login_required
-def add_item():
-    form = TrackingForm()
-    if form.validate_on_submit():
-        img_file = form.img.data
-        if img_file and allowed_file(img_file.filename):
-            img_filename = secure_filename(str(uuid.uuid4()) + img_file.filename)
-            img_file.save(os.path.join(app.config['UPLOAD_FOLDER'], img_filename))
-        else:
-            img_filename = ""
-
-        t = Track(date = form.date.data,
-        station_start = form.station_start.data,
-        station_end = form.station_end.data,
-        quantity = form.quantity.data,
-        img = img_filename,
-        caption = form.caption.data)
-
-        db.session.add(t)
-
-        form_location = form.location.data
-        l = Location.query.filter_by(location = form_location.location).first()
-        l.tracks.append(t)
-
-        form_area = form.area.data
-        a = Area.query.filter(Area.area == form_area.area).first()
-        a.tracks.append(t)
-
-        form_material = form.material.data
-        m = Material.query.filter_by(material = form_material.material).first()
-        m.tracks.append(t)
-
-        db.session.commit()
-
-        return redirect(url_for('daily_report'))
-    return str(form.errors)
+    return render_template('daily_report.html', form=form, entries=entries, today = today, previous_form=previous_form, id=id, id2=id2)
 
 @app.route('/daily_report_as_pdf/<id>', methods=['GET', 'POST'])
 @login_required
@@ -272,7 +269,7 @@ def create_waterproofing():
             db.session.add(f)
             db.session.commit()
             return redirect(url_for('report_waterproofing'))
-        elif request.form['action'] == 'Edit':
+        elif request.form['action'] == 'Edit Previous':
             id_object = form.edit_date.data
             r = Report.query.get(id_object.id)
             id = r.id
@@ -304,7 +301,7 @@ def edit_waterproofing(id):
             report.summary = form.summary.data
             db.session.commit()
             return redirect(url_for('report_waterproofing'))
-        elif request.form['action'] == 'Edit':
+        elif request.form['action'] == 'Edit Previous':
             id_object = form.edit_date.data
             r = Report.query.get(id_object.id)
             id = r.id

@@ -18,19 +18,65 @@
     </form>
 
     <a href="{{ url_for('daily_report_as_pdf', id=id) }}" class="navbar-form navbar-left"><button type="button" class="btn btn-default">Export as PDF</button></a>
-    <div class="navbar-form navbar-left" ><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_item_form">Add Items to Daily Report</button></div>
 
 {% endblock navbar %}
 
 {% block content %}
-        <h2 class="page-header">Daily Report for {{today}}</h2>
         <div class="container">
-        <p>
-        Hint: Test data in 2/14/2014
-        </p>
-        </div>
-        <div class="container">
-          <div class="table-responsive">
+
+        {% if id == id2 %}
+        <h2 class="page-header">Report Items</h2>
+        <div class="row">
+        <div class="col-lg-6">
+                <form action="/add_item" method="POST" enctype="multipart/form-data" class="form-default">
+                {{ form.hidden_tag() }}
+                {% call macro.form_field(form.date) %} {% endcall %}
+                <div class="input-group input-group">
+                <span class="input-group-addon">Area</span>
+                {% call macro.form_field(form.area) %} {% endcall %}
+                {% call macro.form_field(form.location) %} {% endcall %}
+                </div>
+                <p>
+                <div class="input-group input-group">
+                <span class="input-group-addon">Material: </span>
+                {% call macro.form_field(form.material) %} {% endcall %}
+                </div>
+                </p>
+                <p>
+                <div class="input-group input-group">
+                <span class="input-group-addon">Start Station: </span>
+                {% call macro.form_field(form.station_start) %} {% endcall %}
+                </div>
+                </p>
+                <p>
+                <div class="input-group input-group">
+                <span class="input-group-addon">End Station: </span>
+                {% call macro.form_field(form.station_end) %} {% endcall %}
+                </div>
+                </p>
+                <p>
+                <div class="input-group input-group">
+                <span class="input-group-addon">Quantity: </span>
+                {% call macro.form_field(form.quantity) %} {% endcall %}
+                </div>
+                </p>
+                {% call macro.form_field(form.img) %} {% endcall %}
+                {% call macro.form_field(form.caption) %} {% endcall %}
+                {% for field, errors in form.errors.iteritems() %}
+                <div class="alert alert-error">
+                    {{ field }}: {{ ', '.join(errors) }}
+                </div>
+                {% endfor %}
+                <input type="submit" value="Submit" class="btn btn-primary">
+                </form>
+                <p></p>
+            </div>
+            </div>
+            {% endif %}
+          <div class="row">
+          <h2 class="page-header">Daily Report for {{today}}</h2>
+          <div class="col-lg-10">
+          <div class="table-bordered table-condensed">
             <table class="table">
               <tbody>
               {%if entries %}
@@ -73,63 +119,8 @@
             </table>
           </div>
           </div>
-
-    <div class="modal fade" id="add_item_form">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Add to Report</h4>
-            </div>
-            <div class="modal-body">
-                <div class="container">
-                <div class="col-lg-4">
-                <form action="/add_item" method="POST" enctype="multipart/form-data" class="form-default">
-                {{ form.hidden_tag() }}
-                {% call macro.form_field(form.date) %} {% endcall %}
-                <div class="input-group input-group">
-                <span class="input-group-addon">Area</span>
-                {% call macro.form_field(form.area) %} {% endcall %}
-                {% call macro.form_field(form.location) %} {% endcall %}
-                </div>
-                <p>
-                <div class="input-group input-group">
-                <span class="input-group-addon">Material: </span>
-                {% call macro.form_field(form.material) %} {% endcall %}
-                </div>
-                </p>
-                <p>
-                <div class="input-group input-group">
-                <span class="input-group-addon">Start Station: </span>
-                {% call macro.form_field(form.station_start) %} {% endcall %}
-                </div>
-                </p>
-                <p>
-                <div class="input-group input-group">
-                <span class="input-group-addon">End Station: </span>
-                {% call macro.form_field(form.station_end) %} {% endcall %}
-                </div>
-                </p>
-                <p>
-                <div class="input-group input-group">
-                <span class="input-group-addon">Quantity: </span>
-                {% call macro.form_field(form.quantity) %} {% endcall %}
-                </div>
-                </p>
-                {% call macro.form_field(form.img) %} {% endcall %}
-                {% call macro.form_field(form.caption) %} {% endcall %}
-                {% for field, errors in form.errors.iteritems() %}
-<div class="alert alert-error">
-    {{ field }}: {{ ', '.join(errors) }}
-</div>
-{% endfor %}
-                <input type="submit" value="Submit" class="btn btn-primary">
-                </form>
-                </div>
-                </div>
-            </div>
-        </div>
-    </div>
+          </div>
+          <p></p>
     </div>
 
 {% endblock content %}

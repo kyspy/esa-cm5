@@ -14,19 +14,24 @@ def UploadWaterproofing():
     sheet = book.sheet_by_index(0)
 
     for x in range(0, sheet.nrows):
-        date = datetime.strptime(sheet.cell(x,0).value, "%m-%d-%Y")
-        shift= sheet.cell(x,1).value
-        shift_start= sheet.cell(x,2).value
-        shift_end= sheet.cell(x,3).value
-        area= sheet.cell(x,4).value
-        location= sheet.cell(x,5).value
+        date = datetime.strptime(sheet.cell(x,0).value, "%Y-%m-%d")
+        area= sheet.cell(x,1).value
+        location= sheet.cell(x,2).value
+        station_start= sheet.cell(x,3).value
+        station_end= sheet.cell(x,4).value
+        quantity= sheet.cell(x,5).value
         material= sheet.cell(x,6).value
-        quantity= sheet.cell(x,7).value
-        unit= sheet.cell(x,8).value
-        station_start= sheet.cell(x,9).value
-        station_end= sheet.cell(x,10).value
-        img = ""
-        caption = ""
+        unit= sheet.cell(x,7).value
+
+        if sheet.cell(x,8).value:
+            img = sheet.cell(x,8).value
+        else:
+            img = ""
+
+        if sheet.cell(x,9).value:
+            caption = sheet.cell(x,9).value
+        else:
+            caption = ""
 
         t = Track(
             date = date,
@@ -52,16 +57,6 @@ def UploadWaterproofing():
             db.session.commit()
         else:
             l.tracks.append(t)
-            db.session.commit()
-
-        s = Shift.query.filter_by(shift = shift).first()
-        if s == None:
-            s = Shift(shift = shift, start = shift_start, end = shift_end)
-            s.tracks.append(t)
-            db.session.add(s)
-            db.session.commit()
-        else:
-            s.tracks.append(t)
             db.session.commit()
 
         m = Material.query.filter_by(material = material).first()
